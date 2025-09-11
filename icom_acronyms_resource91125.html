@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICOM Acronyms & Terminology Resource</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(44, 90, 160, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #2c5aa0;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #2c5aa0;
+            background: white;
+            color: #2c5aa0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: #f0f7ff;
+        }
+
+        .filter-btn.active {
+            background: #2c5aa0;
+            color: white;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .term-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #2c5aa0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .term-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .term-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .term-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #2c5aa0;
+            margin-bottom: 4px;
+        }
+
+        .term-category {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .term-definition {
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .term-department {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #666;
+            border-left: 3px solid #ff9800;
+        }
+
+        .term-department strong {
+            color: #333;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .category-clinical { border-left-color: #e53e3e; }
+        .category-academic { border-left-color: #38a169; }
+        .category-technology { border-left-color: #3182ce; }
+        .category-administrative { border-left-color: #805ad5; }
+        .category-compliance { border-left-color: #d69e2e; }
+
+        .category-clinical .term-category { background: #fed7d7; color: #c53030; }
+        .category-academic .term-category { background: #c6f6d5; color: #2f855a; }
+        .category-technology .term-category { background: #bee3f8; color: #2b6cb0; }
+        .category-administrative .term-category { background: #e9d8fd; color: #6b46c1; }
+        .category-compliance .term-category { background: #faf089; color: #b7791f; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .terms-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ICOM Acronyms & Terminology Resource</h1>
+            <p>Your comprehensive guide to medical school terminology, acronyms, and departmental contacts</p>
+        </div>
+
+        <div class="search-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search terms, definitions, or departments...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">All Terms</button>
+                <button class="filter-btn" data-category="clinical">Clinical</button>
+                <button class="filter-btn" data-category="academic">Academic</button>
+                <button class="filter-btn" data-category="technology">Technology</button>
+                <button class="filter-btn" data-category="administrative">Administrative</button>
+                <button class="filter-btn" data-category="compliance">Compliance</button>
+            </div>
+        </div>
+
+        <div class="stats" id="resultsStats">
+            Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> terms
+        </div>
+
+        <div class="terms-grid" id="termsGrid">
+            <!-- Terms will be populated by JavaScript -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <p>No terms found matching your search criteria.</p>
+            <p>Try adjusting your search or selecting a different category.</p>
+        </div>
+    </div>
+
+    <script>
+        const termsData = [
+            // Clinical/Medical Terms
+            {
+                term: "AACOM",
+                definition: "American Association of Colleges of Osteopathic Medicine - the accrediting body for osteopathic medical schools.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "AOA",
+                definition: "American Osteopathic Association - the professional organization for osteopathic physicians and students.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "COCA",
+                definition: "Commission on Osteopathic College Accreditation - accredits colleges of osteopathic medicine in the United States.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "COMLEX",
+                definition: "Comprehensive Osteopathic Medical Licensing Examination - the licensing exam series for osteopathic medical students and physicians.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "DO",
+                definition: "Doctor of Osteopathy - the degree granted to graduates of osteopathic medical schools.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "ERAS",
+                definition: "Electronic Residency Application Service - the online application system for medical residency programs.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "GME",
+                definition: "Graduate Medical Education - medical training that occurs after medical school graduation, including internships, residencies, and fellowships.",
+                category: "clinical",
+                department: "Graduate Medical Education"
+            },
+            {
+                term: "NRMP",
+                definition: "National Resident Matching Program - the organization that conducts the Main Residency Match for medical students and graduates.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "NBOME",
+                definition: "National Board of Osteopathic Medical Examiners - the organization that develops and administers COMLEX examinations.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "OMM/OMT",
+                definition: "Osteopathic Manipulative Medicine/Treatment - hands-on diagnosis and treatment techniques unique to osteopathic medicine.",
+                category: "clinical",
+                department: "OPP Department"
+            },
+            {
+                term: "OMS-I",
+                definition: "Osteopathic Medical Student, First Year - first-year medical student at an osteopathic medical school.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "OMS-II",
+                definition: "Osteopathic Medical Student, Second Year - second-year medical student at an osteopathic medical school.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "OMS-III",
+                definition: "Osteopathic Medical Student, Third Year - third-year medical student in clinical rotations.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "OMS-IV",
+                definition: "Osteopathic Medical Student, Fourth Year - fourth-year medical student in advanced clinical rotations and residency preparation.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "OPP",
+                definition: "Osteopathic Principles and Practice - foundational course and department focusing on osteopathic philosophy and manipulative medicine.",
+                category: "clinical",
+                department: "OPP Department"
+            },
+            {
+                term: "SOAP",
+                definition: "Supplemental Offer and Acceptance Program - secondary matching process for unmatched medical students and unfilled residency positions.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "VSLO",
+                definition: "Visiting Student Learning Opportunities - AAMC program allowing medical students to complete clinical rotations at other institutions.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+
+            // Academic Terms
+            {
+                term: "Adjunct Faculty",
+                definition: "Contracted faculty members who are not considered part of the permanent staff. At ICOM, adjunct faculty are required to be appointed prior to contract generation.",
+                category: "academic",
+                department: "Academic Affairs"
+            },
+            {
+                term: "AAMC",
+                definition: "Association of American Medical Colleges - organization representing medical schools, teaching hospitals, and academic societies.",
+                category: "academic",
+                department: "Academic Affairs"
+            },
+            {
+                term: "CME",
+                definition: "Continuing Medical Education - ongoing education activities that physicians must complete to maintain licensure and board certification.",
+                category: "academic",
+                department: "Graduate Medical Education"
+            },
+            {
+                term: "LCME",
+                definition: "Liaison Committee on Medical Education - accrediting body for MD-granting medical education programs (equivalent to COCA for DO programs).",
+                category: "academic",
+                department: "Academic Affairs"
+            },
+            {
+                term: "Preceptor",
+                definition: "Licensed physician who supervises and teaches medical students during clinical rotations in community-based settings.",
+                category: "academic",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "Clinical Rotation",
+                definition: "Hands-on medical training experience where students work directly with patients under physician supervision.",
+                category: "academic",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "Didactic",
+                definition: "Classroom-based learning involving lectures, labs, and traditional educational methods (typically years 1-2 of medical school).",
+                category: "academic",
+                department: "Academic Affairs"
+            },
+            {
+                term: "Clerkship",
+                definition: "Required clinical rotations that medical students must complete, typically during third and fourth year.",
+                category: "academic",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "HPSP",
+                definition: "Health Professions Scholarship Program - military scholarship program that provides financial support for medical school in exchange for military service.",
+                category: "academic",
+                department: "Student Services"
+            },
+
+            // Technology Terms
+            {
+                term: "Jamf",
+                definition: "Mobile Device Management (MDM) platform used by ICOM to manage Apple devices across the institution.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "MDM",
+                definition: "Mobile Device Management - system for remotely managing, monitoring, and securing mobile devices used by the organization.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "Meraki",
+                definition: "Cloud-managed networking solution used by ICOM for wireless and network infrastructure management.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "Google Workspace",
+                definition: "Cloud-based productivity and collaboration suite including Gmail, Drive, Calendar, and other applications used institution-wide.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "EntraID",
+                definition: "Microsoft's cloud-based identity and access management service (formerly Azure AD) used for single sign-on and user authentication.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "SSO",
+                definition: "Single Sign-On - authentication process that allows users to access multiple applications with one set of login credentials.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "LMS",
+                definition: "Learning Management System - digital platform used to deliver, track, and manage educational content and student progress.",
+                category: "technology",
+                department: "IT Department / Academic Affairs"
+            },
+
+            // Administrative Terms
+            {
+                term: "Registrar",
+                definition: "Office responsible for maintaining student academic records, enrollment, transcripts, and graduation requirements.",
+                category: "administrative",
+                department: "Registrar"
+            },
+            {
+                term: "Bursar",
+                definition: "Office responsible for student billing, payment processing, and financial account management.",
+                category: "administrative",
+                department: "Bursar"
+            },
+            {
+                term: "Financial Aid",
+                definition: "Department that administers federal, state, and institutional financial assistance programs for students.",
+                category: "administrative",
+                department: "Financial Aid"
+            },
+            {
+                term: "Student Affairs",
+                definition: "Department focused on student support services, wellness, and co-curricular activities outside the classroom.",
+                category: "administrative",
+                department: "Student Affairs"
+            },
+            {
+                term: "Admissions",
+                definition: "Department responsible for recruiting, evaluating, and selecting prospective students for admission to the college.",
+                category: "administrative",
+                department: "Admissions"
+            },
+            {
+                term: "FAFSA",
+                definition: "Free Application for Federal Student Aid - form students complete to determine eligibility for federal financial aid.",
+                category: "administrative",
+                department: "Financial Aid"
+            },
+
+            // Compliance Terms
+            {
+                term: "FERPA",
+                definition: "Family Educational Rights and Privacy Act - federal law protecting the privacy of student education records.",
+                category: "compliance",
+                department: "Registrar / Compliance"
+            },
+            {
+                term: "HIPAA",
+                definition: "Health Insurance Portability and Accountability Act - federal law protecting patient health information privacy and security.",
+                category: "compliance",
+                department: "Compliance / Clinical Affairs"
+            },
+            {
+                term: "Title IX",
+                definition: "Federal civil rights law that prohibits sex-based discrimination in education programs and activities.",
+                category: "compliance",
+                department: "Human Resources"
+            },
+            {
+                term: "OSHA",
+                definition: "Occupational Safety and Health Administration - federal agency that sets and enforces workplace safety standards.",
+                category: "compliance",
+                department: "Safety & Compliance"
+            },
+            {
+                term: "ADA",
+                definition: "Americans with Disabilities Act - federal law prohibiting discrimination based on disability and ensuring accessibility.",
+                category: "compliance",
+                department: "Student Affairs / HR"
+            },
+            {
+                term: "Institutional Effectiveness",
+                definition: "Department responsible for assessment, accreditation compliance, and continuous improvement processes.",
+                category: "compliance",
+                department: "Institutional Effectiveness"
+            }
+        ];
+
+        let filteredTerms = [...termsData];
+        let currentFilter = 'all';
+
+        function renderTerms(terms) {
+            const grid = document.getElementById('termsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            if (terms.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+            } else {
+                grid.style.display = 'grid';
+                noResults.style.display = 'none';
+                
+                grid.innerHTML = terms.map(term => `
+                    <div class="term-card category-${term.category}">
+                        <div class="term-header">
+                            <div>
+                                <div class="term-title">${term.term}</div>
+                                <span class="term-category">${term.category.charAt(0).toUpperCase() + term.category.slice(1)}</span>
+                            </div>
+                        </div>
+                        <div class="term-definition">${term.definition}</div>
+                        <div class="term-department">
+                            <strong>Contact:</strong> ${term.department}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            updateStats(terms.length);
+        }
+
+        function updateStats(visibleCount) {
+            document.getElementById('resultCount').textContent = visibleCount;
+            document.getElementById('totalCount').textContent = termsData.length;
+        }
+
+        function filterTerms(searchTerm = '', category = 'all') {
+            filteredTerms = termsData.filter(term => {
+                const matchesSearch = searchTerm === '' || 
+                    term.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    term.definition.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    term.department.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                const matchesCategory = category === 'all' || term.category === category;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            renderTerms(filteredTerms);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            filterTerms(e.target.value, currentFilter);
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.category;
+                filterTerms(document.getElementById('searchInput').value, currentFilter);
+            });
+        });
+
+        // Initialize
+        renderTerms(termsData);
+    </script>
+</body>
+</html>
