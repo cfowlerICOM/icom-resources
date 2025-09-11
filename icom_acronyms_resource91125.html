@@ -12,9 +12,9 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Gotham', 'Proxima Nova', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
-            color: #333;
+            color: #4D4F4E;
             line-height: 1.6;
         }
 
@@ -27,22 +27,23 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
+            background: linear-gradient(135deg, #F15625 0%, #F07531 100%);
             color: white;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(44, 90, 160, 0.2);
+            box-shadow: 0 4px 15px rgba(241, 86, 37, 0.2);
         }
 
         .header h1 {
             font-size: 2.2em;
             margin-bottom: 8px;
             font-weight: 600;
+            font-family: 'Gotham', 'Proxima Nova', sans-serif;
         }
 
         .header p {
             font-size: 1.1em;
-            opacity: 0.9;
+            opacity: 0.95;
         }
 
         .search-controls {
@@ -62,15 +63,16 @@
         .search-box input {
             width: 100%;
             padding: 12px 45px 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #EDEDED;
             border-radius: 8px;
             font-size: 16px;
+            font-family: 'Gotham', 'Proxima Nova', sans-serif;
             transition: border-color 0.3s ease;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: #2c5aa0;
+            border-color: #F15625;
         }
 
         .search-icon {
@@ -78,7 +80,7 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #666;
+            color: #777878;
         }
 
         .filter-buttons {
@@ -89,30 +91,33 @@
 
         .filter-btn {
             padding: 8px 16px;
-            border: 2px solid #2c5aa0;
+            border: 2px solid #F15625;
             background: white;
-            color: #2c5aa0;
+            color: #F15625;
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+            font-family: 'Gotham', 'Proxima Nova', sans-serif;
             transition: all 0.3s ease;
             font-weight: 500;
         }
 
         .filter-btn:hover {
-            background: #f0f7ff;
+            background: #F8BB8B;
+            border-color: #F07531;
         }
 
         .filter-btn.active {
-            background: #2c5aa0;
+            background: #F15625;
             color: white;
         }
 
         .stats {
             text-align: center;
             margin-bottom: 20px;
-            color: #666;
+            color: #777878;
             font-style: italic;
+            font-family: 'Adobe Garamond Pro', 'Minion Pro', Georgia, serif;
         }
 
         .terms-grid {
@@ -127,7 +132,7 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #2c5aa0;
+            border-left: 4px solid #F15625;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -146,56 +151,62 @@
         .term-title {
             font-size: 1.3em;
             font-weight: 700;
-            color: #2c5aa0;
+            color: #F15625;
             margin-bottom: 4px;
+            font-family: 'Gotham', 'Proxima Nova', sans-serif;
         }
 
         .term-category {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: #F8BB8B;
+            color: #F07531;
             padding: 4px 10px;
             border-radius: 15px;
             font-size: 0.8em;
             font-weight: 500;
+            font-family: 'Gotham', 'Proxima Nova', sans-serif;
         }
 
         .term-definition {
-            color: #555;
+            color: #4D4F4E;
             margin-bottom: 12px;
             line-height: 1.6;
+            font-family: 'Adobe Garamond Pro', 'Minion Pro', Georgia, serif;
         }
 
         .term-department {
-            background: #f5f5f5;
+            background: #EDEDED;
             padding: 8px 12px;
             border-radius: 6px;
             font-size: 0.9em;
-            color: #666;
-            border-left: 3px solid #ff9800;
+            color: #777878;
+            border-left: 3px solid #F99D27;
+            font-family: 'Gotham', 'Proxima Nova', sans-serif;
         }
 
         .term-department strong {
-            color: #333;
+            color: #4D4F4E;
         }
 
         .no-results {
             text-align: center;
             padding: 40px 20px;
-            color: #666;
+            color: #777878;
             font-size: 1.1em;
+            font-family: 'Adobe Garamond Pro', 'Minion Pro', Georgia, serif;
         }
 
-        .category-clinical { border-left-color: #e53e3e; }
-        .category-academic { border-left-color: #38a169; }
-        .category-technology { border-left-color: #3182ce; }
-        .category-administrative { border-left-color: #805ad5; }
-        .category-compliance { border-left-color: #d69e2e; }
+        /* Category-specific styling with ICOM brand colors */
+        .category-clinical { border-left-color: #F15625; }
+        .category-academic { border-left-color: #00A7B7; }
+        .category-technology { border-left-color: #4D4F4E; }
+        .category-administrative { border-left-color: #F99D27; }
+        .category-compliance { border-left-color: #F6C857; }
 
-        .category-clinical .term-category { background: #fed7d7; color: #c53030; }
-        .category-academic .term-category { background: #c6f6d5; color: #2f855a; }
-        .category-technology .term-category { background: #bee3f8; color: #2b6cb0; }
-        .category-administrative .term-category { background: #e9d8fd; color: #6b46c1; }
-        .category-compliance .term-category { background: #faf089; color: #b7791f; }
+        .category-clinical .term-category { background: #F8BB8B; color: #C53030; }
+        .category-academic .term-category { background: #B6E2E9; color: #2B6CB0; }
+        .category-technology .term-category { background: #AAAAAB; color: #FFFFFF; }
+        .category-administrative .term-category { background: #F9DFA5; color: #B7791F; }
+        .category-compliance .term-category { background: #4D4F4E; color: #FFFFFF; }
 
         @media (max-width: 768px) {
             .container {
@@ -538,6 +549,102 @@
                 definition: "Department responsible for assessment, accreditation compliance, and continuous improvement processes.",
                 category: "compliance",
                 department: "Institutional Effectiveness"
+            },
+
+            // Additional Terms from Common Usage
+            {
+                term: "ROI",
+                definition: "Return on Investment - a financial metric used to evaluate the efficiency and profitability of an investment or compare multiple investments.",
+                category: "administrative",
+                department: "Finance"
+            },
+            {
+                term: "TCO",
+                definition: "Total Cost of Ownership - comprehensive assessment of all direct and indirect costs associated with acquiring, deploying, and maintaining technology systems over their entire lifecycle.",
+                category: "technology",
+                department: "IT Department"
+            },
+            {
+                term: "Onboarding",
+                definition: "The process of integrating new employees, students, or users into an organization, including orientation, training, and providing necessary resources and access.",
+                category: "administrative",
+                department: "Human Resources"
+            },
+            {
+                term: "CE",
+                definition: "Continuing Education - ongoing professional development and learning activities required to maintain professional licenses, certifications, and competencies.",
+                category: "academic",
+                department: "Professional Development"
+            },
+            {
+                term: "Staff Council",
+                definition: "Representative body of staff members that provides input on policies, procedures, and matters affecting staff welfare and the institutional community.",
+                category: "administrative",
+                department: "Human Resources"
+            },
+            {
+                term: "SOP",
+                definition: "Standard Operating Procedure - documented step-by-step instructions for carrying out routine operations consistently and safely.",
+                category: "compliance",
+                department: "Quality Assurance"
+            },
+            {
+                term: "White Coat Ceremony",
+                definition: "Formal ceremony marking the beginning of medical students' clinical training, symbolizing their commitment to professionalism and patient care.",
+                category: "clinical",
+                department: "Academic Affairs"
+            },
+            {
+                term: "Match Day",
+                definition: "Annual event when fourth-year medical students learn where they will complete their residency training, coordinated through the NRMP matching process.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+
+            // Medical School Technology & Assessment Platforms
+            {
+                term: "TrueLearn",
+                definition: "Online assessment and test preparation platform used by medical students to prepare for board exams and track academic performance.",
+                category: "academic",
+                department: "Academic Affairs"
+            },
+            {
+                term: "eValue",
+                definition: "Clinical education management system used to evaluate student performance during clinical rotations and coordinate clinical training.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "Aquifer",
+                definition: "Case-based learning platform providing virtual patient scenarios and clinical cases to enhance diagnostic thinking and clinical skills.",
+                category: "academic",
+                department: "Academic Affairs"
+            },
+
+            // ICOM-Specific Terms and Roles
+            {
+                term: "ICAB",
+                definition: "Idaho College Advisory Board - institutional committee providing guidance and oversight for college operations and strategic planning.",
+                category: "administrative",
+                department: "Administration"
+            },
+            {
+                term: "Clinical Clerkship Coordinator",
+                definition: "ICOM staff member responsible for organizing, scheduling, and managing third and fourth-year clinical rotations and preceptor relationships.",
+                category: "clinical",
+                department: "Clinical Affairs"
+            },
+            {
+                term: "Behavioral Health Specialist",
+                definition: "ICOM staff member who provides mental health support, counseling services, and wellness resources for students and community engagement.",
+                category: "administrative",
+                department: "Student Services"
+            },
+            {
+                term: "Laboratory & Safety Compliance Manager",
+                definition: "ICOM staff member responsible for ensuring laboratory safety protocols, regulatory compliance, and maintaining safe learning environments.",
+                category: "compliance",
+                department: "Safety & Compliance"
             }
         ];
 
