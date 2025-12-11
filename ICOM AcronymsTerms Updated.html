@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICOM Acronyms & Terminology</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* ICOM Brand Colors based on Style Guide */
+        :root {
+            --icom-orange: #F99D27; /* PMS 137 C */
+            --icom-orange-light: #F8BB8B; /* PMS 474 C */
+            --icom-gray-dark: #777878; /* PMS Cool Gray 9 C */
+            --icom-gray-med: #AAAAAB; /* PMS Cool Gray 6 C */
+            --icom-gray-light: #EDEDED; /* PMS 420 C */
+            --icom-yellow: #F6C857; /* PMS 134 C */
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+        }
+
+        .icom-gradient {
+            background: linear-gradient(135deg, var(--icom-orange) 0%, #F05023 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-left-color: var(--icom-orange);
+        }
+
+        .category-chip {
+            transition: all 0.2s ease;
+        }
+        
+        .category-chip.active {
+            background-color: var(--icom-gray-dark);
+            color: white;
+            border-color: var(--icom-gray-dark);
+        }
+
+        .btn-primary {
+            background-color: var(--icom-orange);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #e08e22;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--icom-gray-med); 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--icom-gray-dark); 
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- Data Source ---
+        
+        const initialData = [
+            // --- PILLAR 1: ACADEMICS & CLINICAL TRAINING ---
+            { 
+                term: "Active Learning", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Teaching approach emphasizing student engagement and participation vs passive lecture. Core to TBL/PBL methodologies.", 
+                link: "https://poorvucenter.yale.edu/teaching/teaching-resource-library/team-based-learning"
+            },
+            { 
+                term: "AE", 
+                category: "Academics & Clinical Training", 
+                expansion: "Application Exercise",
+                definition: "Clinical case-based exercises used after RAP in TBL sessions requiring clinical reasoning application.", 
+                link: "https://www.teambasedlearning.org/definition/"
+            },
+            { 
+                term: "Assistant Professor", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Entry-level faculty rank eligible for promotion to Associate Professor.", 
+                link: "https://www.aamc.org/data-reports/faculty-institutions/report/faculty-roster-faculty-salary-reports"
+            },
+            { 
+                term: "Block", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Integrated curriculum unit covering related content typically 3-8 weeks. Primary organizational structure for ICOM's preclinical curriculum.", 
+                link: "https://www.icom.edu/academics/do-program/"
+            },
+            { 
+                term: "Block Director", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Faculty leader responsible for integrated curriculum block coordinating multiple disciplines within preclinical years.", 
+                link: "https://www.icom.edu/faculty-staff/"
+            },
+            { 
+                term: "BMS", 
+                category: "Academics & Clinical Training", 
+                expansion: "Biomedical Sciences",
+                definition: "The foundational sciences (anatomy, biochemistry, etc.) taught primarily in the first two years.", 
+                link: "https://www.aamc.org/what-we-do/mission-areas/medical-education/curriculum"
+            },
+            { 
+                term: "CBL", 
+                category: "Academics & Clinical Training", 
+                expansion: "Case-Based Learning",
+                definition: "Learning approach using clinical cases as foundation for teaching integrated into curriculum.", 
+                link: "https://medicine.yale.edu/edu/curriculum/advanced/cbl/" 
+            },
+            { 
+                term: "Clerkship", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Clinical rotations during the 3rd and 4th years of medical school.", 
+                link: "https://www.aamc.org/what-we-do/mission-areas/medical-education/curriculum/clinical-education"
+            },
+            { 
+                term: "CME", 
+                category: "Academics & Clinical Training", 
+                expansion: "Continuing Medical Education",
+                definition: "Educational activities that serve to maintain, develop, or increase knowledge and skills.", 
+                link: "https://www.accme.org/"
+            },
+            { 
+                term: "COMAT", 
+                category: "Academics & Clinical Training", 
+                expansion: "Comprehensive Osteopathic Medical Achievement Test",
+                definition: "Subject exams administered by the NBOME at the end of core clinical rotations.", 
+                link: "https://www.nbome.org/assessments/comat/"
+            },
+            { 
+                term: "COMLEX-USA", 
+                category: "Academics & Clinical Training", 
+                expansion: "Comprehensive Osteopathic Medical Licensing Examination",
+                definition: "The examination series required for osteopathic medical licensure.", 
+                link: "https://www.nbome.org/assessments/comlex-usa/"
+            },
+            { 
+                term: "COMSAE", 
+                category: "Academics & Clinical Training", 
+                expansion: "Comprehensive Osteopathic Medical Self-Assessment Examination",
+                definition: "Practice exams for COMLEX-USA preparation.", 
+                link: "https://www.nbome.org/assessments/comsae/"
+            },
+            { 
+                term: "Core Rotations", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Required clinical rotations including Internal Medicine, General Surgery, Family Medicine, Pediatrics, OB/GYN, Psychiatry, and Emergency Medicine.", 
+                link: "https://www.icom.edu/academics/clinical-education/"
+            },
+            { 
+                term: "Course Director", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Faculty member responsible for overall design delivery and assessment of a course.", 
+                link: "https://www.icom.edu/faculty-staff/"
+            },
+            { 
+                term: "CV", 
+                category: "Academics & Clinical Training", 
+                expansion: "Curriculum Vitae",
+                definition: "A comprehensive document describing a professional's career, education, and accomplishments.", 
+                link: "https://students-residents.aamc.org/training-residency-fellowship/article/preparing-your-curriculum-vitae/"
+            },
+            { 
+                term: "Distance Education", 
+                category: "Academics & Clinical Training", 
+                expansion: null,
+                definition: "Education where instruction occurs when students and instructors are not in the same place, often using technology.", 
+                link: "https://osteopathic.org/accreditation/standards/"
+            },
+            { 
+                term: "EPAs", 
+                category: "Academics & Clinical Training", 
+                expansion: "Entrustable Professional Activities",
+                definition: "Units of professional practice that can be entrusted to a learner once they have demonstrated competence.", 
+                link: "https://www.aamc.org/what-we-do/mission-areas/medical-education/cbme/core-epas"
+            },
+            { 
+                term: "ERAS", 
+                category: "Academics & Clinical Training", 
+                expansion: "Electronic Residency Application Service",
+                definition: "The centralized application service for residency.", 
+                link: "https://students-residents.aamc.org/applying-residency/applying-residencies-eras/"
+            },
+            { 
+                term: "GME", 
+                category: "Academics & Clinical Training", 
+                expansion: "Graduate Medical Education",
+                definition: "Residency and fellowship training that follows graduation from medical school.", 
+                link: "https://www.acgme.org/about/overview/"
+            },
+            { 
+                term: "IRB", 
+                category: "Academics & Clinical Training", 
+                expansion: "Institutional Review Board",
+                definition: "An administrative body established to protect the rights and welfare of human research subjects.", 
+                link: "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/institutional-review-boards-frequently-asked-questions"
+            },
+            { 
+                term: "MSPE", 
+                category: "Academics & Clinical Training", 
+                expansion: "Medical Student Performance Evaluation",
+                definition: "Also known as the 'Dean's Letter', a comprehensive summary of a student's academic work.", 
+                link: "https://www.aamc.org/services/eras/medical-student-performance-evaluation-mspe"
+            },
+            { 
+                term: "NRMP", 
+                category: "Academics & Clinical Training", 
+                expansion: "National Resident Matching Program",
+                definition: "The organization that processes the Match for residency positions.", 
+                link: "https://www.nrmp.org/"
+            },
+            { 
+                term: "OMM", 
+                category: "Academics & Clinical Training", 
+                expansion: "Osteopathic Manipulative Medicine",
+                definition: "The therapeutic application of manual pressure or force.", 
+                link: "https://findado.osteopathic.org/difference/osteopathic-manipulative-treatment"
+            },
+            { 
+                term: "OPP", 
+                category: "Academics & Clinical Training", 
+                expansion: "Osteopathic Principles and Practice",
+                definition: "The philosophy and application of osteopathic medicine.", 
+                link: "https://www.aacom.org/become-a-doctor/about-osteopathic-medicine"
+            },
+            { 
+                term: "OSCE", 
+                category: "Academics & Clinical Training", 
+                expansion: "Objective Structured Clinical Examination",
+                definition: "An exam to test clinical skill performance and competence in skills such as communication and physical exam.", 
+                link: "https://www.nbome.org/assessments/comlex-usa/level-2-pe/clinical-skills/"
+            },
+            { 
+                term: "SP", 
+                category: "Academics & Clinical Training", 
+                expansion: "Standardized Patient",
+                definition: "A person trained to portray a specific patient case in a consistent manner for instruction and assessment.", 
+                link: "https://www.aspeducators.org/standardized-patient-methodology"
+            },
+            { 
+                term: "Sub-I", 
+                category: "Academics & Clinical Training", 
+                expansion: "Sub-Internship",
+                definition: "An advanced clinical rotation where a fourth-year medical student takes on the responsibilities of a first-year resident.", 
+                link: "https://www.aafp.org/students-residents/medical-students/become-a-resident/applying-residency/sub-internships.html"
+            },
+            { 
+                term: "TBL", 
+                category: "Academics & Clinical Training", 
+                expansion: "Team-Based Learning",
+                definition: "An active learning strategy that provides students with opportunities to apply conceptual knowledge through small group interaction.", 
+                link: "https://www.teambasedlearning.org/definition/"
+            },
+            { 
+                term: "UME", 
+                category: "Academics & Clinical Training", 
+                expansion: "Undergraduate Medical Education",
+                definition: "The four years of medical school leading to the DO degree.", 
+                link: "https://www.ama-assn.org/education/medical-school-diversity/undergraduate-medical-education-ume"
+            },
+            { 
+                term: "USMLE", 
+                category: "Academics & Clinical Training", 
+                expansion: "United States Medical Licensing Examination",
+                definition: "The three-step examination for medical licensure in the U.S.", 
+                link: "https://www.usmle.org/"
+            },
+            { 
+                term: "VSLO", 
+                category: "Academics & Clinical Training", 
+                expansion: "Visiting Student Learning Opportunities",
+                definition: "A program that helps medical students find away rotations.", 
+                link: "https://students-residents.aamc.org/attending-medical-school/article/visiting-student-learning-opportunities/"
+            },
+
+            // --- PILLAR 2: STUDENT AFFAIRS & ADMISSIONS ---
+            { 
+                term: "AACOMAS", 
+                category: "Student Affairs & Admissions", 
+                expansion: "AACOM Application Service",
+                definition: "The centralized online application service for the U.S. colleges of osteopathic medicine.", 
+                link: "https://www.aacom.org/become-a-doctor/apply-to-medical-school/aacomas"
+            },
+            { 
+                term: "FAFSA", 
+                category: "Student Affairs & Admissions", 
+                expansion: "Free Application for Federal Student Aid",
+                definition: "The form used to apply for financial aid for college or graduate school.", 
+                link: "https://studentaid.gov/h/apply-for-aid/fafsa"
+            },
+            { 
+                term: "LOA", 
+                category: "Student Affairs & Admissions", 
+                expansion: "Leave of Absence",
+                definition: "An authorized break in a student's continuous enrollment.", 
+                link: "https://www.icom.edu/students/student-handbook/"
+            },
+            { 
+                term: "OMS", 
+                category: "Student Affairs & Admissions", 
+                expansion: "Osteopathic Medical Student",
+                definition: "Often followed by a Roman numeral (I, II, III, IV) to denote the student's year in the program.", 
+                link: "https://studentdo.org/"
+            },
+            { 
+                term: "SGA", 
+                category: "Student Affairs & Admissions", 
+                expansion: "Student Government Association",
+                definition: "The official voice of the student body.", 
+                link: "https://www.icom.edu/students/"
+            },
+            { 
+                term: "SOMA", 
+                category: "Student Affairs & Admissions", 
+                expansion: "Student Osteopathic Medical Association",
+                definition: "The student affiliate organization of the AOA.", 
+                link: "https://studentdo.org/"
+            },
+            { 
+                term: "Title IV", 
+                category: "Student Affairs & Admissions", 
+                expansion: "Title IV of the Higher Education Act of 1965",
+                definition: "Federal legislation that governs the administration of federal student financial aid programs.", 
+                link: "https://fsapartners.ed.gov/home"
+            },
+
+            // --- PILLAR 3: INSTITUTIONAL ADMINISTRATION ---
+            { 
+                term: "AACOM", 
+                category: "Institutional Administration", 
+                expansion: "American Association of Colleges of Osteopathic Medicine",
+                definition: "Supports the 41 accredited colleges of osteopathic medicine.", 
+                link: "https://www.aacom.org/about-aacom"
+            },
+            { 
+                term: "AAMC", 
+                category: "Institutional Administration", 
+                expansion: "Association of American Medical Colleges",
+                definition: "Represents medical schools, teaching hospitals, and academic societies.", 
+                link: "https://www.aamc.org/about-us"
+            },
+            { 
+                term: "ACGME", 
+                category: "Institutional Administration", 
+                expansion: "Accreditation Council for Graduate Medical Education",
+                definition: "Accredits GME programs (residencies).", 
+                link: "https://www.acgme.org/about/overview/"
+            },
+            { 
+                term: "AOA", 
+                category: "Institutional Administration", 
+                expansion: "American Osteopathic Association",
+                definition: "The representative member organization for osteopathic physicians.", 
+                link: "https://osteopathic.org/about/aoa-mission/"
+            },
+            { 
+                term: "COCA", 
+                category: "Institutional Administration", 
+                expansion: "Commission on Osteopathic College Accreditation",
+                definition: "The accrediting agency for colleges of osteopathic medicine.", 
+                link: "https://osteopathic.org/accreditation/"
+            },
+            { 
+                term: "Competencies", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "Broader abilities integrating knowledge skills and attitudes required for practice. ACGME/COCA core competencies framework guides ICOM curriculum.", 
+                link: "https://www.acgme.org/globalassets/pdfs/cgm-guide-to-the-common-program-requirements.pdf"
+            },
+            { 
+                term: "Curriculum Committee", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "Body responsible for overseeing the educational program content and delivery.", 
+                link: "https://www.icom.edu/academics/"
+            },
+            { 
+                term: "FERPA", 
+                category: "Institutional Administration", 
+                expansion: "Family Educational Rights and Privacy Act",
+                definition: "Federal law that protects the privacy of student education records.", 
+                link: "https://studentprivacy.ed.gov/"
+            },
+            { 
+                term: "HIPAA", 
+                category: "Institutional Administration", 
+                expansion: "Health Insurance Portability and Accountability Act",
+                definition: "Federal law that restricts access to individuals' private medical information.", 
+                link: "https://www.hhs.gov/hipaa/for-professionals/privacy/laws-regulations/index.html"
+            },
+            { 
+                term: "LCME", 
+                category: "Institutional Administration", 
+                expansion: "Liaison Committee on Medical Education",
+                definition: "The accrediting body for educational programs at schools of medicine in the U.S. and Canada (MD programs).", 
+                link: "https://lcme.org/"
+            },
+            { 
+                term: "NBOME", 
+                category: "Institutional Administration", 
+                expansion: "National Board of Osteopathic Medical Examiners",
+                definition: "The organization that administers the COMLEX-USA.", 
+                link: "https://www.nbome.org/about/"
+            },
+            { 
+                term: "Osteopathic Core Competencies", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "The 7 required domains: Medical Knowledge, Patient Care, Communication, Professionalism, Practice-Based Learning, Systems-Based Practice, and OMM.", 
+                link: "https://osteopathic.org/accreditation/standards/"
+            },
+            { 
+                term: "Self-Study", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "A comprehensive self-assessment process a COM undergoes to demonstrate compliance with COCA standards.", 
+                link: "https://osteopathic.org/accreditation/standards/"
+            },
+            { 
+                term: "SPC", 
+                category: "Institutional Administration", 
+                expansion: "Student Performance Committee",
+                definition: "Automatically reviews student academic progress and professional conduct.", 
+                link: "https://www.icom.edu/students/"
+            },
+            { 
+                term: "Substantive Change", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "Any modification in a COM's operations or governance (e.g., class size increase) that impacts its capacity to meet accreditation requirements.", 
+                link: "https://osteopathic.org/accreditation/standards/substantive-change-policies/"
+            },
+            { 
+                term: "Teach-Out Plan", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "A written plan providing for the equitable treatment of students if the COM ceases to operate or stops offering a program.", 
+                link: "https://osteopathic.org/accreditation/standards/"
+            },
+            { 
+                term: "Technical Assessment Report", 
+                category: "Institutional Administration", 
+                expansion: null,
+                definition: "The process of setting goals about technical facets of the institution and determining the best course of action to improve results.", 
+                link: "https://osteopathic.org/accreditation/"
+            },
+            { 
+                term: "USDE", 
+                category: "Institutional Administration", 
+                expansion: "United States Department of Education",
+                definition: "The federal agency that recognizes COCA as the accrediting authority for osteopathic medical education.", 
+                link: "https://www.ed.gov/"
+            },
+
+            // --- PILLAR 4: OPERATIONS & TECHNOLOGY ---
+            { 
+                term: "COM", 
+                category: "Operations & Technology", 
+                expansion: "College of Osteopathic Medicine",
+                definition: "An institution offering instruction leading to the Doctor of Osteopathic Medicine (D.O.) degree.", 
+                link: "https://www.aacom.org/become-a-doctor/about-osteopathic-medicine"
+            },
+            { 
+                term: "DO", 
+                category: "Operations & Technology", 
+                expansion: "Doctor of Osteopathic Medicine",
+                definition: "A fully licensed physician who practices in all areas of medicine, emphasizing a whole-person approach.", 
+                link: "https://osteopathic.org/what-is-osteopathic-medicine/"
+            },
+            { 
+                term: "LMS", 
+                category: "Operations & Technology", 
+                expansion: "Learning Management System",
+                definition: "(e.g., Canvas) used to deliver, track, and manage educational content.", 
+                link: "https://www.instructure.com/canvas"
+            },
+            { 
+                term: "SONIS", 
+                category: "Operations & Technology", 
+                expansion: "Student Online Network Information System",
+                definition: "Student information system managing student records by Jenzabar.", 
+                link: "https://jenzabar.com/product/jenzabar-sonis"
+            },
+            { 
+                term: "TrueLearn", 
+                category: "Operations & Technology", 
+                expansion: null,
+                definition: "Online assessment and test preparation platform used by medical students to prepare for board exams.", 
+                link: "https://truelearn.com/osteopathic-medical-students/"
+            },
+            { 
+                term: "WebAdmit", 
+                category: "Operations & Technology", 
+                expansion: null,
+                definition: "Admissions application management platform integrating with Salesforce via API.", 
+                link: "https://liaisonedu.com/admissions-management-software/"
+            }
+        ];
+
+        // --- Components ---
+
+        const Header = ({ feedbackLink }) => {
+            return (
+                <div className="bg-white shadow-md sticky top-0 z-50">
+                    <div className="icom-gradient h-2 w-full"></div>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            
+                            {/* Logo Area */}
+                            <div className="flex items-center gap-3">
+                                <div className="bg-orange-500 text-white p-2 rounded-lg shadow-sm">
+                                    <i data-lucide="book-open" className="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight leading-none">ICOM Terminology</h1>
+                                    <p className="text-xs text-gray-500 font-medium tracking-wide uppercase mt-1">Acronyms & Definitions</p>
+                                </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <a 
+                                href={feedbackLink}
+                                target="_blank"
+                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold transition-colors border border-gray-200"
+                            >
+                                <i data-lucide="mail-plus" className="w-4 h-4"></i>
+                                <span>Request Update</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SearchBar = ({ searchTerm, setSearchTerm }) => (
+            <div className="relative max-w-2xl mx-auto mt-8 px-4">
+                <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
+                    <i data-lucide="search" className="h-5 w-5 text-gray-400"></i>
+                </div>
+                <input
+                    type="text"
+                    className="block w-full pl-14 pr-4 py-4 rounded-xl border-2 border-gray-100 shadow-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all text-lg"
+                    placeholder="Search for an acronym, term, or definition..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        );
+
+        const CategoryFilter = ({ categories, selectedCategory, setSelectedCategory }) => (
+            <div className="max-w-7xl mx-auto px-4 mt-6">
+                <div className="flex flex-wrap justify-center gap-2">
+                    <button
+                        onClick={() => setSelectedCategory('All')}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 category-chip ${selectedCategory === 'All' ? 'active shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        All Terms
+                    </button>
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 category-chip ${selectedCategory === cat ? 'active shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+
+        const TermCard = ({ item }) => {
+            return (
+                <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-transparent card-hover flex flex-col h-full border border-gray-100">
+                    <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-0.5">{item.term}</h3>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-50 text-gray-500 border border-gray-100 ml-2 whitespace-nowrap">
+                                    {item.category}
+                                </span>
+                            </div>
+                            
+                            {item.expansion && (
+                                <div className="text-sm font-semibold text-orange-500 mt-0.5 leading-snug">
+                                    {item.expansion}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="flex-grow mt-1">
+                        <p className="text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-2">
+                            {item.definition}
+                        </p>
+                    </div>
+
+                    {item.link && (
+                        <div className="mt-3 pt-2 flex justify-end">
+                            <a 
+                                href={item.link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-orange-500 hover:text-orange-600 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group transition-colors"
+                                title="View official source"
+                            >
+                                Learn More
+                                <i data-lucide="arrow-right" className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                            </a>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const EmptyState = ({ onReset }) => (
+            <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <i data-lucide="search-x" className="w-8 h-8 text-gray-400"></i>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">No terms found</h3>
+                <p className="mt-1 text-gray-500 max-w-sm mx-auto">
+                    We couldn't find any terms matching your search. Try checking for typos or browsing by category.
+                </p>
+                <button
+                    onClick={onReset}
+                    className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white btn-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                >
+                    Clear Search
+                </button>
+            </div>
+        );
+
+        const App = () => {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [selectedCategory, setSelectedCategory] = useState("All");
+            const [data] = useState(initialData);
+
+            // Exact mailto link from requirements
+            const feedbackLink = "https://mail.google.com/mail/?view=cm&to=help@icom.edu&su=ICOM%20Acronyms%20and%20Terminology%20-%20Suggestion&body=Hi%20IT%2C%0A%0AI%20have%20feedback%20for%20the%20ICOM%20Acronyms%20and%20Terminology%20app%3A%0A%0AType%20of%20feedback%3A%20%5BEdit%20existing%20term%20%2F%20Suggest%20new%20term%5D%0ATerm%3A%20%5BEnter%20term%2Facronym%5D%0AMy%20suggestion%3A%20%5BDescribe%20your%20edit%20or%20provide%20the%20new%20definition%20here%5D%0ASource%20(if%20applicable)%3A%20%5BWhere%20should%20users%20go%20to%20learn%20more%3F%5D%0AAdditional%20context%3A%20%5BAny%20other%20details%20that%20might%20be%20helpful%5D%0A%0AThanks%2C%0A%5BYour%20Name%5D";
+
+            // Extract unique categories and sort them
+            const categories = useMemo(() => {
+                const cats = new Set(data.map(item => item.category));
+                return Array.from(cats).sort();
+            }, [data]);
+
+            // Filter logic
+            const filteredData = useMemo(() => {
+                return data.filter(item => {
+                    const matchesSearch = 
+                        item.term.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        (item.expansion && item.expansion.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        item.definition.toLowerCase().includes(searchTerm.toLowerCase());
+                    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+                    
+                    return matchesSearch && matchesCategory;
+                }).sort((a, b) => a.term.localeCompare(b.term));
+            }, [data, searchTerm, selectedCategory]);
+
+            // Refresh icons when DOM updates
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [filteredData]);
+
+            return (
+                <div className="min-h-screen pb-12">
+                    <Header feedbackLink={feedbackLink} />
+                    
+                    <main>
+                        <div className="icom-gradient absolute top-0 left-0 w-full h-64 -z-10 opacity-5"></div>
+                        
+                        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                        
+                        <CategoryFilter 
+                            categories={categories} 
+                            selectedCategory={selectedCategory} 
+                            setSelectedCategory={setSelectedCategory} 
+                        />
+
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+                            {filteredData.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredData.map((item, index) => (
+                                        <TermCard key={index} item={item} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyState onReset={() => {
+                                    setSearchTerm("");
+                                    setSelectedCategory("All");
+                                }} />
+                            )}
+                        </div>
+                    </main>
+
+                    <footer className="max-w-7xl mx-auto px-4 mt-20 text-center text-gray-400 text-sm pb-8">
+                        <p>&copy; {new Date().getFullYear()} Idaho College of Osteopathic Medicine. All rights reserved.</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
