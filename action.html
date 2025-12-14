@@ -1,0 +1,4029 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deal Desk | Promotions + Quotes + Listing Studio</title>
+  <meta name="description" content="Single-file dealership app: promo-to-inventory matching, quote builder, and listing copy studio." />
+  <style>
+    :root{
+      --bg: #0b0f17;
+      --bg2:#0f1522;
+      --surface:#121a2a;
+      --surface2:#0f1726;
+      --card:#101828;
+      --card2:#0e1625;
+      --text:#e6edf7;
+      --muted:#9fb0c6;
+      --faint:#6f829c;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.12);
+      --brand:#5ac8fa;
+      --brand2:#7ee787;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+
+      --radius: 14px;
+      --radius2: 10px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --shadow2: 0 6px 18px rgba(0,0,0,0.25);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    /* Light theme (toggle) */
+    [data-theme="light"]{
+      --bg:#f6f7fb;
+      --bg2:#ffffff;
+      --surface:#ffffff;
+      --surface2:#f7f8fc;
+      --card:#ffffff;
+      --card2:#ffffff;
+      --text:#0b1220;
+      --muted:#445469;
+      --faint:#6f7f97;
+      --border: rgba(12,18,32,0.10);
+      --border2: rgba(12,18,32,0.16);
+      --shadow: 0 10px 30px rgba(12,18,32,0.10);
+      --shadow2: 0 6px 18px rgba(12,18,32,0.08);
+      --brand:#1473e6;
+      --brand2:#17a34a;
+      --warn:#b45309;
+      --bad:#dc2626;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 700px at 15% 0%, rgba(90,200,250,0.12), transparent 55%),
+                  radial-gradient(900px 500px at 95% 10%, rgba(126,231,135,0.10), transparent 55%),
+                  linear-gradient(180deg, var(--bg), var(--bg2));
+      color: var(--text);
+    }
+    a{color:inherit;text-decoration:none}
+    button, input, select, textarea{font-family:inherit}
+
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      background: linear-gradient(180deg, rgba(18,26,42,0.88), rgba(18,26,42,0.72));
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    [data-theme="light"] .topbar{
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72));
+    }
+
+    .topbar-inner{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display:flex;
+      gap: 14px;
+      align-items:center;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .brand-badge{
+      width:34px;height:34px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35), transparent 45%),
+                  linear-gradient(135deg, rgba(90,200,250,0.85), rgba(126,231,135,0.75));
+      box-shadow: var(--shadow2);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    [data-theme="light"] .brand-badge{
+      border: 1px solid rgba(12,18,32,0.10);
+    }
+    .brand-title{
+      font-weight: 760;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      font-size: 14px;
+    }
+    .brand-sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .global-search{
+      flex:1;
+      min-width: 220px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(16,24,40,0.55);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    [data-theme="light"] .global-search{
+      background: rgba(255,255,255,0.75);
+    }
+    .global-search input{
+      width:100%;
+      border:none;
+      outline:none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .global-search .hint{
+      font-size: 12px;
+      color: var(--faint);
+      white-space:nowrap;
+      border-left:1px solid var(--border);
+      padding-left:10px;
+      display:none;
+    }
+    @media (min-width: 980px){
+      .global-search .hint{display:block}
+    }
+
+    .nav{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .nav a{
+      font-size: 12.5px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      transition: all .15s ease;
+    }
+    .nav a:hover{
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(255,255,255,0.03);
+    }
+    [data-theme="light"] .nav a:hover{
+      background: rgba(12,18,32,0.03);
+    }
+    .nav a.active{
+      color: var(--text);
+      background: rgba(90,200,250,0.10);
+      border-color: rgba(90,200,250,0.28);
+    }
+
+    .top-actions{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      margin-left: 2px;
+    }
+    .btn{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      cursor:pointer;
+      transition: all .15s ease;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      user-select:none;
+      white-space:nowrap;
+    }
+    [data-theme="light"] .btn{
+      background: rgba(12,18,32,0.03);
+    }
+    .btn:hover{
+      border-color: var(--border2);
+      transform: translateY(-1px);
+    }
+    .btn.primary{
+      border-color: rgba(90,200,250,0.38);
+      background: linear-gradient(180deg, rgba(90,200,250,0.18), rgba(90,200,250,0.08));
+    }
+    .btn.good{
+      border-color: rgba(126,231,135,0.35);
+      background: linear-gradient(180deg, rgba(126,231,135,0.14), rgba(126,231,135,0.06));
+    }
+    .btn.danger{
+      border-color: rgba(255,107,107,0.35);
+      background: linear-gradient(180deg, rgba(255,107,107,0.14), rgba(255,107,107,0.06));
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+    .btn.small{padding:7px 9px; border-radius: 10px; font-size:12px}
+    .btn:disabled{
+      opacity:.55; cursor:not-allowed; transform:none;
+    }
+
+    .wrap{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .layout{grid-template-columns: 1fr}
+    }
+
+    .panel{
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(16,24,40,0.52), rgba(16,24,40,0.38));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    [data-theme="light"] .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.75));
+    }
+    .panel .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .panel .hd h2{
+      margin:0;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+    }
+    .panel .hd .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .panel .bd{
+      padding: 14px;
+    }
+
+    .hero{
+      padding: 16px 14px;
+      border-bottom: 1px solid var(--border);
+      background:
+        radial-gradient(900px 380px at 10% 0%, rgba(90,200,250,0.14), transparent 60%),
+        radial-gradient(700px 320px at 90% 10%, rgba(126,231,135,0.12), transparent 60%),
+        rgba(16,24,40,0.35);
+    }
+    [data-theme="light"] .hero{
+      background:
+        radial-gradient(900px 380px at 10% 0%, rgba(20,115,230,0.12), transparent 60%),
+        radial-gradient(700px 320px at 90% 10%, rgba(23,163,74,0.10), transparent 60%),
+        rgba(255,255,255,0.68);
+    }
+    .hero h1{
+      margin:0 0 6px 0;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero p{
+      margin:0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 1220px){
+      .grid{grid-template-columns: repeat(2, 1fr);}
+    }
+    @media (max-width: 720px){
+      .grid{grid-template-columns: 1fr;}
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(16,24,40,0.55), rgba(16,24,40,0.35));
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow2);
+      transition: transform .15s ease, border-color .15s ease;
+      cursor:pointer;
+      min-height: 238px;
+      display:flex;
+      flex-direction:column;
+    }
+    [data-theme="light"] .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.90), rgba(255,255,255,0.74));
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: var(--border2);
+    }
+    .thumb{
+      height: 120px;
+      position:relative;
+      background: radial-gradient(600px 260px at 10% 0%, rgba(90,200,250,0.16), transparent 60%),
+                  radial-gradient(520px 220px at 90% 0%, rgba(126,231,135,0.14), transparent 60%),
+                  rgba(0,0,0,0.20);
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    [data-theme="light"] .thumb{
+      background: radial-gradient(600px 260px at 10% 0%, rgba(20,115,230,0.12), transparent 60%),
+                  radial-gradient(520px 220px at 90% 0%, rgba(23,163,74,0.10), transparent 60%),
+                  rgba(12,18,32,0.04);
+    }
+    .thumb img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+    .thumb .ph{
+      width: 100%;
+      height: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 12px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+
+    .badges{
+      position:absolute;
+      top: 10px;
+      left: 10px;
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+    }
+    .badge{
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      color: var(--text);
+      backdrop-filter: blur(8px);
+    }
+    [data-theme="light"] .badge{
+      background: rgba(255,255,255,0.65);
+    }
+    .badge.good{
+      border-color: rgba(126,231,135,0.30);
+      background: rgba(126,231,135,0.14);
+    }
+    .badge.brand{
+      border-color: rgba(90,200,250,0.35);
+      background: rgba(90,200,250,0.14);
+    }
+    .badge.warn{
+      border-color: rgba(255,204,102,0.30);
+      background: rgba(255,204,102,0.12);
+      color: var(--text);
+    }
+
+    .card-body{
+      padding: 12px 12px 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      flex:1;
+    }
+    .title{
+      font-weight: 730;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      font-size: 13.5px;
+      margin:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .meta{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .money{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .price{
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .msrp{
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .mini{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+      color: var(--muted);
+      font-size: 12px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+      margin-top:auto;
+    }
+    .mini .k{
+      color: var(--faint);
+      font-size: 11px;
+      margin-right: 6px;
+    }
+
+    .kpi-row{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 720px){
+      .kpi-row{grid-template-columns: repeat(2, 1fr);}
+    }
+    .kpi{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      border-radius: var(--radius2);
+      padding: 10px;
+    }
+    [data-theme="light"] .kpi{
+      background: rgba(12,18,32,0.02);
+    }
+    .kpi .v{font-size: 14px; font-weight: 780; letter-spacing:-0.02em;}
+    .kpi .l{font-size: 12px; color: var(--muted); margin-top: 4px;}
+
+    .row{display:flex; gap: 10px; flex-wrap:wrap; align-items:center}
+    .row.tight{gap:8px}
+    .grow{flex:1}
+    .muted{color: var(--muted)}
+    .faint{color: var(--faint)}
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .field label{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .field input, .field select, .field textarea{
+      width:100%;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+      color: var(--text);
+      padding: 10px 10px;
+      border-radius: 12px;
+      outline:none;
+      font-size: 13px;
+    }
+    [data-theme="light"] .field input, [data-theme="light"] .field select, [data-theme="light"] .field textarea{
+      background: rgba(255,255,255,0.70);
+    }
+    .field textarea{min-height: 110px; resize: vertical; font-family: var(--mono); font-size: 12px;}
+
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap: 8px;
+      align-items:center;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      padding: 7px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pill strong{color: var(--text)}
+    .pill.good{
+      border-color: rgba(126,231,135,0.35);
+      background: rgba(126,231,135,0.10);
+      color: var(--text);
+    }
+    .pill.warn{
+      border-color: rgba(255,204,102,0.35);
+      background: rgba(255,204,102,0.10);
+      color: var(--text);
+    }
+    .pill.bad{
+      border-color: rgba(255,107,107,0.35);
+      background: rgba(255,107,107,0.10);
+      color: var(--text);
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .table th, .table td{
+      text-align:left;
+      padding: 10px 10px;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border);
+      vertical-align:top;
+    }
+    .table th{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+      background: rgba(255,255,255,0.02);
+    }
+    [data-theme="light"] .table th{
+      background: rgba(12,18,32,0.02);
+    }
+    .table tr:last-child td{border-bottom:none}
+    .table td.mono{font-family:var(--mono); font-size: 12px}
+
+    /* Drawer */
+    .drawer{
+      position:fixed;
+      top:0;
+      right:0;
+      height:100%;
+      width: 520px;
+      max-width: 100vw;
+      background: linear-gradient(180deg, rgba(18,26,42,0.96), rgba(18,26,42,0.88));
+      border-left: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      z-index: 80;
+      transform: translateX(100%);
+      transition: transform .18s ease;
+      display:flex;
+      flex-direction:column;
+    }
+    [data-theme="light"] .drawer{
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90));
+    }
+    .drawer.open{transform: translateX(0)}
+    .drawer-hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .drawer-hd .t{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .drawer-hd h3{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      line-height:1.2;
+    }
+    .drawer-hd .sub{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .drawer-bd{padding: 14px; overflow:auto; flex:1;}
+    .tabs{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .tab{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    [data-theme="light"] .tab{
+      background: rgba(12,18,32,0.02);
+    }
+    .tab.active{
+      color: var(--text);
+      border-color: rgba(90,200,250,0.35);
+      background: rgba(90,200,250,0.12);
+    }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.55);
+      z-index: 90;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+    .modal-backdrop.open{display:flex}
+    .modal{
+      width: min(920px, 100%);
+      max-height: 92vh;
+      overflow:auto;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(18,26,42,0.96), rgba(18,26,42,0.88));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    [data-theme="light"] .modal{
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90));
+    }
+    .modal .hd{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .modal .bd{padding: 14px}
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 99;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      pointer-events:none;
+    }
+    .toast-item{
+      pointer-events:auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(16,24,40,0.85);
+      color: var(--text);
+      box-shadow: var(--shadow2);
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      min-width: 280px;
+      max-width: 460px;
+    }
+    [data-theme="light"] .toast-item{
+      background: rgba(255,255,255,0.90);
+    }
+    .toast-item .msg{font-size: 12.5px; line-height: 1.35;}
+    .toast-item .meta{font-size: 11.5px; color: var(--muted); margin-top: 3px;}
+    .toast-item .x{
+      margin-left:auto;
+      pointer-events:auto;
+    }
+
+    .notice{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius);
+      padding: 12px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    [data-theme="light"] .notice{
+      background: rgba(12,18,32,0.02);
+    }
+    .notice strong{color: var(--text)}
+    .notice code{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      background: rgba(0,0,0,0.18);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    [data-theme="light"] .notice code{background: rgba(12,18,32,0.05)}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" id="brandHome" title="Go to Inventory">
+        <div class="brand-badge" aria-hidden="true"></div>
+        <div>
+          <div class="brand-title">Deal Desk</div>
+          <div class="brand-sub">Promotions, quotes, and listing copy in one place</div>
+        </div>
+      </div>
+
+      <div class="global-search" title="Search inventory by year/make/model/stock/VIN">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="2" opacity="0.8"/>
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+        </svg>
+        <input id="q" placeholder="Search inventory: year, make, model, stock, VIN..." />
+        <div class="hint">Try: “2025 Ski-Doo Summit”, “Polaris Ranger”, “under 15000”</div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <a href="#inventory" data-route="inventory">Inventory</a>
+        <a href="#deals" data-route="deals">Deal Engine</a>
+        <a href="#quotes" data-route="quotes">Quote Builder</a>
+        <a href="#studio" data-route="studio">Listing Studio</a>
+        <a href="#data" data-route="data">Data</a>
+      </nav>
+
+      <div class="top-actions">
+        <button class="btn" id="themeBtn" title="Toggle theme">Theme</button>
+        <button class="btn primary" id="aiBtn" title="AI mode (optional)">AI: Off</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="layout">
+      <aside id="sidebar"></aside>
+      <main id="main"></main>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Unit details drawer">
+    <div class="drawer-hd">
+      <div class="t">
+        <h3 id="drawerTitle">Unit</h3>
+        <div class="sub" id="drawerSub"></div>
+        <div class="tabs" id="drawerTabs"></div>
+      </div>
+      <div class="row tight">
+        <button class="btn small" id="drawerCopyLink">Copy Link</button>
+        <button class="btn small ghost" id="drawerClose">Close</button>
+      </div>
+    </div>
+    <div class="drawer-bd" id="drawerBody"></div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="hd">
+        <div>
+          <div style="font-weight:780; letter-spacing:-0.02em;" id="modalTitle">Modal</div>
+          <div class="muted" style="font-size:12px; margin-top:4px;" id="modalSub"></div>
+        </div>
+        <div class="row tight">
+          <button class="btn small ghost" id="modalClose">Close</button>
+        </div>
+      </div>
+      <div class="bd" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  /* =========================================================
+     Deal Desk
+     - Single-file app combining:
+       (2) Promo-to-inventory matcher
+       (3) Quote builder with OTD + payment scenarios
+       (4) Spec-to-story listing/ad generator
+     ========================================================= */
+
+  const APP_VERSION = "1.0.0-singlefile";
+  const LS_KEYS = {
+    inventory: "dealdesk.inventory.v1",
+    promos: "dealdesk.promos.v1",
+    settings: "dealdesk.settings.v1",
+    ui: "dealdesk.ui.v1"
+  };
+
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const safeNum = (v, fallback=0) => {
+    const n = Number(String(v).replace(/[^\d.-]/g,""));
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const money = (n) => {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return "$0";
+    return v.toLocaleString(undefined, { style:"currency", currency:"USD", maximumFractionDigits:0 });
+  };
+  const pct = (n) => `${(Number(n) || 0).toFixed(2)}%`;
+  const isoToday = () => new Date().toISOString().slice(0,10);
+  const parseISO = (s) => {
+    if (!s) return null;
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  };
+  const isBetween = (d, startISO, endISO) => {
+    const start = parseISO(startISO) || new Date("1970-01-01");
+    const end = parseISO(endISO) || new Date("2100-01-01");
+    return d >= start && d <= end;
+  };
+  const uid = () => "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+  const escapeHtml = (s="") => String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+  const PLACEHOLDER_IMG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#5ac8fa" stop-opacity="0.28"/>
+          <stop offset="1" stop-color="#7ee787" stop-opacity="0.20"/>
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="700" fill="#0f1726"/>
+      <rect x="-80" y="-80" width="1360" height="860" fill="url(#g)"/>
+      <g fill="none" stroke="#9fb0c6" stroke-opacity="0.45" stroke-width="3">
+        <path d="M190 480c150-210 320-250 530-120 130 80 240 65 340-60"/>
+        <path d="M240 520h720" />
+        <circle cx="350" cy="520" r="58"/>
+        <circle cx="840" cy="520" r="58"/>
+      </g>
+      <g fill="#e6edf7" fill-opacity="0.85" font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial" font-size="38">
+        <text x="70" y="120">Unit photo</text>
+      </g>
+      <g fill="#9fb0c6" fill-opacity="0.9" font-family="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas" font-size="22">
+        <text x="70" y="165">Paste an image URL in Data → Inventory JSON, or import your feed.</text>
+      </g>
+    </svg>
+  `)}`;
+
+  /* =========================================================
+     Demo data (for showcase only)
+     ========================================================= */
+  const DEMO = {
+    inventory: [
+      {
+        id: "u1",
+        year: 2024,
+        make: "Polaris",
+        model: "Ranger 1000 Premium",
+        trim: "",
+        category: "UTV",
+        condition: "New",
+        price: 16999,
+        msrp: 17999,
+        stock: "P-1001",
+        vin: "4XATestVIN001",
+        url: "https://actioncyclesnsleds.com/inventory", /* placeholder */
+        img: PLACEHOLDER_IMG,
+        specs: {
+          engine: "999cc",
+          drivetrain: "AWD/2WD",
+          seating: "3",
+          fuel: "EFI",
+          usage: "Work / Farm / Trail",
+          notes: "Great for property work and weekend riding."
+        },
+        description: "Capable workhorse with comfortable ride and plenty of utility."
+      },
+      {
+        id: "u2",
+        year: 2024,
+        make: "Can-Am",
+        model: "Defender HD10",
+        trim: "XT",
+        category: "UTV",
+        condition: "New",
+        price: 19999,
+        msrp: 21499,
+        stock: "CA-2207",
+        vin: "3JATestVIN002",
+        url: "https://actioncyclesnsleds.com/inventory",
+        img: PLACEHOLDER_IMG,
+        specs: {
+          engine: "976cc",
+          drivetrain: "4x4",
+          seating: "3",
+          fuel: "EFI",
+          usage: "Work / Hunting / Trail",
+          notes: "Utility-focused with strong towing and cargo capability."
+        },
+        description: "Built to handle tough jobs with confidence, traction, and comfort."
+      },
+      {
+        id: "u3",
+        year: 2025,
+        make: "Ski-Doo",
+        model: "Summit X",
+        trim: "154",
+        category: "Snowmobile",
+        condition: "New",
+        price: 16949,
+        msrp: 18399,
+        stock: "SD-5012",
+        vin: "2SKTestVIN003",
+        url: "https://actioncyclesnsleds.com/inventory",
+        img: PLACEHOLDER_IMG,
+        specs: {
+          engine: "850 E-TEC",
+          track: "154\"",
+          suspension: "Deep snow",
+          fuel: "Direct injection",
+          usage: "Powder / Backcountry",
+          notes: "Light feel with strong pull in the deep."
+        },
+        description: "Purpose-built backcountry sled designed for deep snow and steep climbs."
+      },
+      {
+        id: "u4",
+        year: 2024,
+        make: "Polaris",
+        model: "RMK Khaos",
+        trim: "155",
+        category: "Snowmobile",
+        condition: "New",
+        price: 17499,
+        msrp: 18999,
+        stock: "P-7710",
+        vin: "4XATestVIN004",
+        url: "https://actioncyclesnsleds.com/inventory",
+        img: PLACEHOLDER_IMG,
+        specs: {
+          engine: "850",
+          track: "155\"",
+          suspension: "Matryx",
+          fuel: "EFI",
+          usage: "Powder / Play",
+          notes: "Playful handling and responsive power."
+        },
+        description: "A playful, nimble mountain sled for riders who want quick response."
+      },
+      {
+        id: "u5",
+        year: 2024,
+        make: "Sea-Doo",
+        model: "Spark",
+        trim: "3-up",
+        category: "PWC",
+        condition: "New",
+        price: 7499,
+        msrp: 8299,
+        stock: "SEA-1180",
+        vin: "1SEATestVIN005",
+        url: "https://actioncyclesnsleds.com/inventory",
+        img: PLACEHOLDER_IMG,
+        specs: {
+          engine: "Rotax",
+          seating: "3",
+          usage: "Lake / Fun",
+          notes: "Lightweight and easy to tow and store."
+        },
+        description: "Easy-to-own personal watercraft that delivers smiles per gallon."
+      },
+      {
+        id: "u6",
+        year: 2022,
+        make: "Kawasaki",
+        model: "KX450",
+        trim: "",
+        category: "Motorcycle",
+        condition: "Used",
+        price: 6299,
+        msrp: 0,
+        stock: "KAW-0402",
+        vin: "9KAWTestVIN006",
+        url: "https://actioncyclesnsleds.com/inventory",
+        img: PLACEHOLDER_IMG,
+        specs: {
+          engine: "449cc",
+          usage: "Motocross",
+          notes: "Used bike, great for track days."
+        },
+        description: "Competition-ready motocross machine with strong performance."
+      }
+    ],
+    promos: [
+      {
+        id: "p1",
+        title: "Polaris Ranger Customer Cash",
+        brands: ["Polaris"],
+        categories: ["UTV"],
+        condition: ["New"],
+        modelContains: ["Ranger"],
+        yearMin: 2024,
+        yearMax: 2024,
+        startDate: "2025-10-01",
+        endDate: "2025-12-31",
+        type: "cash_rebate",
+        amount: 500,
+        apr: null,
+        termMonths: null,
+        stackable: true,
+        notes: "Demo promo for showcase only. Replace with real OEM promotions.",
+        sourceUrl: "https://actioncyclesnsleds.com/manufacturer-promotions"
+      },
+      {
+        id: "p2",
+        title: "Can-Am Defender Low APR",
+        brands: ["Can-Am"],
+        categories: ["UTV"],
+        condition: ["New"],
+        modelContains: ["Defender"],
+        yearMin: 2024,
+        yearMax: 2024,
+        startDate: "2025-11-01",
+        endDate: "2026-01-15",
+        type: "apr_offer",
+        amount: null,
+        apr: 0.0,
+        termMonths: [36],
+        stackable: false,
+        notes: "Demo promo for showcase only. Replace with real OEM promotions.",
+        sourceUrl: "https://actioncyclesnsleds.com/manufacturer-promotions"
+      },
+      {
+        id: "p3",
+        title: "Ski-Doo Backcountry Credit",
+        brands: ["Ski-Doo"],
+        categories: ["Snowmobile"],
+        condition: ["New"],
+        modelContains: ["Summit"],
+        yearMin: 2025,
+        yearMax: 2025,
+        startDate: "2025-09-15",
+        endDate: "2025-12-31",
+        type: "cash_rebate",
+        amount: 1000,
+        apr: null,
+        termMonths: null,
+        stackable: true,
+        notes: "Demo promo for showcase only. Replace with real OEM promotions.",
+        sourceUrl: "https://actioncyclesnsleds.com/manufacturer-promotions"
+      },
+      {
+        id: "p4",
+        title: "Sea-Doo Low APR up to 60 months",
+        brands: ["Sea-Doo"],
+        categories: ["PWC"],
+        condition: ["New"],
+        modelContains: [],
+        yearMin: 2024,
+        yearMax: 2024,
+        startDate: "2025-10-01",
+        endDate: "2025-12-31",
+        type: "apr_offer",
+        amount: null,
+        apr: 3.99,
+        termMonths: [48,60],
+        stackable: false,
+        notes: "Demo promo for showcase only. Replace with real OEM promotions.",
+        sourceUrl: "https://actioncyclesnsleds.com/manufacturer-promotions"
+      },
+      {
+        id: "p5",
+        title: "Kawasaki Accessories Credit",
+        brands: ["Kawasaki"],
+        categories: ["Motorcycle"],
+        condition: ["New"],
+        modelContains: [],
+        yearMin: 2024,
+        yearMax: 2025,
+        startDate: "2025-11-01",
+        endDate: "2025-12-31",
+        type: "accessory_credit",
+        amount: 300,
+        apr: null,
+        termMonths: null,
+        stackable: true,
+        notes: "Demo promo for showcase only. Replace with real OEM promotions.",
+        sourceUrl: "https://actioncyclesnsleds.com/manufacturer-promotions"
+      }
+    ],
+    settings: {
+      taxRate: 7.00,
+      docFee: 249,
+      regFee: 150,
+      setupFee: 295,
+      destinationFee: 0,
+      otherFee: 0,
+      defaultApr: 8.99,
+      defaultTerms: [36,48,60,72,84],
+      applyTradeTaxCredit: true,
+      ai: {
+        enabled: false,
+        provider: "none",   // none | openai
+        endpoint: "https://api.openai.com/v1/responses",
+        model: "gpt-4o-mini",
+        apiKey: "",
+        orgId: "",
+        projectId: "",
+        sendAuthHeader: true,
+        timeoutMs: 25000
+      }
+    }
+  };
+
+  /* =========================================================
+     State and persistence
+     ========================================================= */
+  const state = {
+    route: "inventory",
+    q: "",
+    theme: "dark",
+    inventory: [],
+    promos: [],
+    settings: structuredClone(DEMO.settings),
+    filters: {
+      condition: "Any",
+      make: "Any",
+      category: "Any",
+      yearMin: "",
+      yearMax: "",
+      priceMin: "",
+      priceMax: ""
+    },
+    sort: "bestDeals", // bestDeals | priceAsc | priceDesc | yearDesc | yearAsc
+    drawer: { open:false, unitId:null, tab:"overview" },
+    ui: {
+      showSidebar: true
+    },
+    quoteDrafts: {} // per unitId
+  };
+
+  function loadPersisted(){
+    const inv = safeJsonParse(localStorage.getItem(LS_KEYS.inventory));
+    const pro = safeJsonParse(localStorage.getItem(LS_KEYS.promos));
+    const set = safeJsonParse(localStorage.getItem(LS_KEYS.settings));
+    const ui = safeJsonParse(localStorage.getItem(LS_KEYS.ui));
+
+    state.inventory = Array.isArray(inv) && inv.length ? inv : structuredClone(DEMO.inventory);
+    state.promos = Array.isArray(pro) && pro.length ? pro : structuredClone(DEMO.promos);
+    state.settings = set && typeof set === "object" ? deepMerge(structuredClone(DEMO.settings), set) : structuredClone(DEMO.settings);
+
+    // Never persist API key unless user explicitly wants to store it.
+    // If they saved one previously, we still load it, but it's on them.
+    state.settings.ai.apiKey = state.settings.ai.apiKey || "";
+
+    state.ui = ui && typeof ui === "object" ? deepMerge({showSidebar:true}, ui) : {showSidebar:true};
+
+    // theme
+    const theme = (set && set.uiTheme) || localStorage.getItem("dealdesk.theme");
+    if (theme === "light" || theme === "dark") state.theme = theme;
+    document.documentElement.setAttribute("data-theme", state.theme);
+
+    // route
+    const hash = location.hash.replace("#","").trim();
+    state.route = hash || "inventory";
+  }
+
+  function persist(){
+    localStorage.setItem(LS_KEYS.inventory, JSON.stringify(state.inventory));
+    localStorage.setItem(LS_KEYS.promos, JSON.stringify(state.promos));
+    // Save settings, but do not force-key removal. This is a demo app.
+    localStorage.setItem(LS_KEYS.settings, JSON.stringify(state.settings));
+    localStorage.setItem(LS_KEYS.ui, JSON.stringify(state.ui));
+    localStorage.setItem("dealdesk.theme", state.theme);
+  }
+
+  function safeJsonParse(s){
+    try { return JSON.parse(s); } catch { return null; }
+  }
+
+  function deepMerge(base, patch){
+    if (Array.isArray(base) && Array.isArray(patch)) return patch;
+    if (typeof base !== "object" || base === null) return patch;
+    if (typeof patch !== "object" || patch === null) return base;
+    const out = Array.isArray(base) ? [...base] : {...base};
+    for (const [k,v] of Object.entries(patch)){
+      if (k in out) out[k] = deepMerge(out[k], v);
+      else out[k] = v;
+    }
+    return out;
+  }
+
+  /* =========================================================
+     Promotions: matching logic
+     ========================================================= */
+  function normalize(s){ return String(s||"").toLowerCase().trim(); }
+
+  function promoIsActive(p){
+    const now = new Date();
+    return isBetween(now, p.startDate, p.endDate);
+  }
+
+  function unitMatchesPromo(unit, promo){
+    if (!promoIsActive(promo)) return {match:false, reasons:["Inactive by date"]};
+
+    const reasons = [];
+    const uMake = normalize(unit.make);
+    const uCat = normalize(unit.category);
+    const uCond = normalize(unit.condition);
+    const uModel = normalize((unit.model||"") + " " + (unit.trim||""));
+    const uYear = Number(unit.year);
+
+    if (Array.isArray(promo.brands) && promo.brands.length){
+      const ok = promo.brands.map(normalize).includes(uMake);
+      if (!ok) reasons.push("Brand mismatch");
+    }
+    if (Array.isArray(promo.categories) && promo.categories.length){
+      const ok = promo.categories.map(normalize).includes(uCat);
+      if (!ok) reasons.push("Category mismatch");
+    }
+    if (Array.isArray(promo.condition) && promo.condition.length){
+      const ok = promo.condition.map(normalize).includes(uCond);
+      if (!ok) reasons.push("Condition mismatch");
+    }
+    if (Number.isFinite(promo.yearMin) && uYear < promo.yearMin) reasons.push("Year below promo range");
+    if (Number.isFinite(promo.yearMax) && uYear > promo.yearMax) reasons.push("Year above promo range");
+
+    if (Array.isArray(promo.modelContains) && promo.modelContains.length){
+      const needed = promo.modelContains.map(normalize).filter(Boolean);
+      if (needed.length){
+        const ok = needed.some(token => uModel.includes(token));
+        if (!ok) reasons.push("Model not included");
+      }
+    }
+
+    return {match: reasons.length === 0, reasons};
+  }
+
+  function applicablePromosForUnit(unit){
+    const hits = [];
+    for (const p of state.promos){
+      const r = unitMatchesPromo(unit, p);
+      if (r.match) hits.push(p);
+    }
+    return hits;
+  }
+
+  function bestCashPromo(promos){
+    const cash = promos.filter(p => p.type === "cash_rebate" || p.type === "accessory_credit");
+    if (!cash.length) return null;
+    cash.sort((a,b) => (safeNum(b.amount) - safeNum(a.amount)));
+    return cash[0];
+  }
+
+  function bestAprPromo(promos, term){
+    const aprs = promos.filter(p => p.type === "apr_offer" && Number.isFinite(p.apr));
+    if (!aprs.length) return null;
+    // Prefer promos that explicitly include the term; otherwise allow generic.
+    aprs.sort((a,b) => {
+      const aTermOk = Array.isArray(a.termMonths) ? a.termMonths.includes(term) : true;
+      const bTermOk = Array.isArray(b.termMonths) ? b.termMonths.includes(term) : true;
+      if (aTermOk !== bTermOk) return bTermOk - aTermOk;
+      return safeNum(a.apr) - safeNum(b.apr);
+    });
+    return aprs[0];
+  }
+
+  /* =========================================================
+     Inventory filtering and sorting
+     ========================================================= */
+  function parseQueryHints(q){
+    // simple competitor-style search parsing
+    // supports "under 15000" / "below 15000" / "over 10000" / "2025" etc
+    const s = normalize(q);
+    const out = {priceMax:null, priceMin:null, year:null};
+    const under = s.match(/\b(under|below|max)\s*\$?\s*([\d,]+)/);
+    const over = s.match(/\b(over|above|min)\s*\$?\s*([\d,]+)/);
+    const year = s.match(/\b(19\d{2}|20\d{2})\b/);
+
+    if (under) out.priceMax = safeNum(under[2], null);
+    if (over) out.priceMin = safeNum(over[2], null);
+    if (year) out.year = safeNum(year[1], null);
+
+    return out;
+  }
+
+  function getFilteredInventory(){
+    const q = normalize(state.q);
+    const hints = parseQueryHints(state.q);
+
+    const f = state.filters;
+    const wantMake = normalize(f.make);
+    const wantCat = normalize(f.category);
+    const wantCond = normalize(f.condition);
+
+    const yearMin = f.yearMin ? safeNum(f.yearMin, null) : null;
+    const yearMax = f.yearMax ? safeNum(f.yearMax, null) : null;
+    const priceMin = f.priceMin ? safeNum(f.priceMin, null) : (hints.priceMin ?? null);
+    const priceMax = f.priceMax ? safeNum(f.priceMax, null) : (hints.priceMax ?? null);
+
+    let items = state.inventory.filter(u => {
+      if (wantMake !== "any" && normalize(u.make) !== wantMake) return false;
+      if (wantCat !== "any" && normalize(u.category) !== wantCat) return false;
+      if (wantCond !== "any" && normalize(u.condition) !== wantCond) return false;
+
+      const y = Number(u.year);
+      if (yearMin !== null && y < yearMin) return false;
+      if (yearMax !== null && y > yearMax) return false;
+      if (hints.year !== null && y !== hints.year) return false;
+
+      const p = safeNum(u.price, 0);
+      if (priceMin !== null && p < priceMin) return false;
+      if (priceMax !== null && p > priceMax) return false;
+
+      if (!q) return true;
+      const hay = normalize([
+        u.year, u.make, u.model, u.trim, u.category, u.condition, u.stock, u.vin
+      ].filter(Boolean).join(" "));
+      return hay.includes(q);
+    });
+
+    // precompute deals count for sorting
+    items = items.map(u => {
+      const promos = applicablePromosForUnit(u);
+      return { ...u, _promos: promos, _bestCash: bestCashPromo(promos) };
+    });
+
+    // sort
+    switch(state.sort){
+      case "priceAsc":
+        items.sort((a,b) => safeNum(a.price) - safeNum(b.price));
+        break;
+      case "priceDesc":
+        items.sort((a,b) => safeNum(b.price) - safeNum(a.price));
+        break;
+      case "yearAsc":
+        items.sort((a,b) => safeNum(a.year) - safeNum(b.year));
+        break;
+      case "yearDesc":
+        items.sort((a,b) => safeNum(b.year) - safeNum(a.year));
+        break;
+      case "bestDeals":
+      default:
+        items.sort((a,b) => {
+          const da = (a._promos?.length || 0);
+          const db = (b._promos?.length || 0);
+          if (db !== da) return db - da;
+          // tie-breaker: bigger cash promo
+          const ca = safeNum(a._bestCash?.amount || 0);
+          const cb = safeNum(b._bestCash?.amount || 0);
+          if (cb !== ca) return cb - ca;
+          return safeNum(a.price) - safeNum(b.price);
+        });
+        break;
+    }
+
+    return items;
+  }
+
+  function uniqueValues(list, key){
+    const set = new Set();
+    for (const item of list){
+      const v = item[key];
+      if (v !== undefined && v !== null && String(v).trim()) set.add(String(v).trim());
+    }
+    return Array.from(set).sort((a,b)=>a.localeCompare(b));
+  }
+
+  /* =========================================================
+     Quote builder
+     ========================================================= */
+  function getQuoteDraft(unitId){
+    if (!state.quoteDrafts[unitId]){
+      state.quoteDrafts[unitId] = {
+        basePriceMode: "sale", // sale | msrp
+        manualDiscount: 0,
+        down: 1500,
+        tradeAllowance: 0,
+        tradePayoff: 0,
+        taxRate: state.settings.taxRate,
+        docFee: state.settings.docFee,
+        regFee: state.settings.regFee,
+        setupFee: state.settings.setupFee,
+        destinationFee: state.settings.destinationFee,
+        otherFee: state.settings.otherFee,
+        defaultApr: state.settings.defaultApr,
+        terms: [...state.settings.defaultTerms],
+        applyTradeTaxCredit: !!state.settings.applyTradeTaxCredit,
+
+        // promo selections
+        selectedCashPromoId: null,
+        selectedAprPromoId: null
+      };
+    }
+    return state.quoteDrafts[unitId];
+  }
+
+  function computeOTD(unit, draft){
+    const base = draft.basePriceMode === "msrp" ? safeNum(unit.msrp) || safeNum(unit.price) : safeNum(unit.price);
+    const discount = safeNum(draft.manualDiscount);
+    const cashPromo = state.promos.find(p => p.id === draft.selectedCashPromoId) || null;
+    const cashAmount = cashPromo ? safeNum(cashPromo.amount) : 0;
+
+    const subtotal = Math.max(0, base - discount - cashAmount);
+
+    const tradeAllowance = Math.max(0, safeNum(draft.tradeAllowance));
+    const tradePayoff = Math.max(0, safeNum(draft.tradePayoff));
+    const down = Math.max(0, safeNum(draft.down));
+
+    const taxableBase = draft.applyTradeTaxCredit ? Math.max(0, subtotal - tradeAllowance) : subtotal;
+    const taxRate = safeNum(draft.taxRate)/100;
+    const tax = taxableBase * taxRate;
+
+    const fees = {
+      doc: Math.max(0, safeNum(draft.docFee)),
+      reg: Math.max(0, safeNum(draft.regFee)),
+      setup: Math.max(0, safeNum(draft.setupFee)),
+      destination: Math.max(0, safeNum(draft.destinationFee)),
+      other: Math.max(0, safeNum(draft.otherFee))
+    };
+    const feeTotal = Object.values(fees).reduce((a,b)=>a+b,0);
+
+    const otdBeforeDownTrade = subtotal + tax + feeTotal;
+
+    // Typical "amount financed"
+    const amountFinanced = Math.max(0, otdBeforeDownTrade - down - tradeAllowance + tradePayoff);
+
+    return {
+      base, discount, cashPromo, cashAmount,
+      subtotal, taxRatePct: safeNum(draft.taxRate), taxableBase, tax,
+      fees, feeTotal,
+      otdBeforeDownTrade,
+      down, tradeAllowance, tradePayoff,
+      amountFinanced
+    };
+  }
+
+  function paymentMonthly(principal, aprPct, months){
+    const P = safeNum(principal);
+    const n = safeNum(months);
+    const apr = safeNum(aprPct);
+
+    if (n <= 0) return {monthly:0, totalPaid:0, totalInterest:0};
+    if (P <= 0) return {monthly:0, totalPaid:0, totalInterest:0};
+
+    // 0% APR
+    if (apr <= 0){
+      const m = P / n;
+      return {monthly:m, totalPaid:m*n, totalInterest:0};
+    }
+
+    const r = (apr/100)/12;
+    const denom = 1 - Math.pow(1+r, -n);
+    if (denom <= 0) return {monthly:0, totalPaid:0, totalInterest:0};
+
+    const m = P * (r / denom);
+    const totalPaid = m * n;
+    const totalInterest = totalPaid - P;
+    return {monthly:m, totalPaid, totalInterest};
+  }
+
+  function buildScenarios(unit, draft, otd){
+    const terms = (draft.terms || []).map(n => safeNum(n)).filter(n => n > 0);
+    const defaultApr = safeNum(draft.defaultApr);
+
+    const aprPromo = state.promos.find(p => p.id === draft.selectedAprPromoId) || null;
+
+    return terms.map(t => {
+      let apr = defaultApr;
+      let aprLabel = "Standard APR";
+      if (aprPromo && aprPromo.type === "apr_offer" && Number.isFinite(aprPromo.apr)){
+        const termOk = Array.isArray(aprPromo.termMonths) ? (aprPromo.termMonths.includes(t)) : true;
+        if (termOk){
+          apr = safeNum(aprPromo.apr);
+          aprLabel = `Promo APR: ${aprPromo.title}`;
+        } else {
+          aprLabel = `Standard APR (promo not for ${t} mo)`;
+        }
+      }
+
+      const p = paymentMonthly(otd.amountFinanced, apr, t);
+      return {
+        term: t,
+        apr,
+        aprLabel,
+        monthly: p.monthly,
+        totalPaid: p.totalPaid,
+        totalInterest: p.totalInterest
+      };
+    });
+  }
+
+  /* =========================================================
+     Listing generator (offline templates)
+     ========================================================= */
+  function pickHighlights(unit){
+    const s = unit.specs || {};
+    const picks = [];
+    if (s.engine) picks.push(`Engine: ${s.engine}`);
+    if (s.drivetrain) picks.push(`Drivetrain: ${s.drivetrain}`);
+    if (s.track) picks.push(`Track: ${s.track}`);
+    if (s.seating) picks.push(`Seating: ${s.seating}`);
+    if (s.suspension) picks.push(`Suspension: ${s.suspension}`);
+    if (s.fuel) picks.push(`Fuel: ${s.fuel}`);
+    if (unit.category) picks.push(`Category: ${unit.category}`);
+    if (unit.condition) picks.push(`Condition: ${unit.condition}`);
+    return picks.slice(0, 7);
+  }
+
+  function offlineListingPack(unit, promos, quote){
+    const title = `${unit.year} ${unit.make} ${unit.model}${unit.trim ? " " + unit.trim : ""}`.trim();
+
+    const highlights = pickHighlights(unit);
+    const bestCash = bestCashPromo(promos);
+    const dealLine = bestCash
+      ? `Eligible for an estimated ${money(bestCash.amount)} offer (${bestCash.title}).`
+      : (promos.length ? `Multiple offers may apply (${promos.length} matched).` : `Ask about current offers and financing options.`);
+
+    const shortDesc =
+      `${unit.condition} ${unit.category}. ${dealLine} Stock: ${unit.stock || "N/A"}.`;
+
+    const longDesc = [
+      `Meet the ${title}.`,
+      unit.description ? unit.description : "A strong option with a clean spec sheet and the right attitude for your next season.",
+      `Highlights:`,
+      ...highlights.map(h => `- ${h}`),
+      ``,
+      `Estimate-ready: build an out-the-door quote and compare payment terms in seconds.`,
+      `Disclaimer: offers, availability, and fees vary. Confirm details with the dealer.`
+    ].join("\n");
+
+    const bullets = [
+      ...highlights,
+      promos.length ? `Matched offers: ${promos.length}` : `Offers: ask us what's active today`,
+      `Stock: ${unit.stock || "N/A"}`
+    ].slice(0, 8);
+
+    const facebookAds = [
+      {
+        primary_text: `${title} available now. ${bestCash ? `Estimated ${money(bestCash.amount)} offer may apply.` : "Ask about current offers."} Tap for a fast quote.`,
+        headline: `${money(unit.price)} | ${unit.make} ${unit.model}`,
+        description: `Build your OTD estimate and payment options in minutes.`,
+        cta: "Get Quote"
+      },
+      {
+        primary_text: `Looking for a ${unit.category}? The ${title} is ready. Compare terms, estimate OTD, and see which offers apply.`,
+        headline: `Check availability`,
+        description: `Fast quote, clear numbers.`,
+        cta: "Learn More"
+      }
+    ];
+
+    const instagramCaptions = [
+      `${title}. ${unit.category} energy, ready to roll. Price: ${money(unit.price)}. Offers may apply.`,
+      `If you like clean specs and clean math: we can build an OTD estimate + payments for the ${title} in minutes.`
+    ];
+
+    const seoMeta = `${title} for sale. View price, matched offers, and estimate payments and out-the-door costs.`;
+
+    const disclaimers = [
+      "All pricing is estimates. Taxes and fees vary by location and customer situation.",
+      "Promotions shown are matched by rules and may have restrictions. Verify eligibility with the dealer/OEM."
+    ];
+
+    // If quote is passed, include a summary snippet.
+    let quoteSummary = "";
+    if (quote){
+      quoteSummary = [
+        `Quote snapshot (estimate):`,
+        `- Subtotal: ${money(quote.subtotal)}`,
+        `- Tax: ${money(quote.tax)} at ${pct(quote.taxRatePct)}`,
+        `- Fees: ${money(quote.feeTotal)}`,
+        `- OTD (before down/trade): ${money(quote.otdBeforeDownTrade)}`,
+        `- Amount financed: ${money(quote.amountFinanced)}`
+      ].join("\n");
+    }
+
+    return {
+      title,
+      shortDesc,
+      longDesc: quoteSummary ? (longDesc + "\n\n" + quoteSummary) : longDesc,
+      bullets,
+      facebookAds,
+      instagramCaptions,
+      seoMeta,
+      disclaimers
+    };
+  }
+
+  /* =========================================================
+     Optional AI: OpenAI Responses API
+     ========================================================= */
+  async function aiRequest({inputMessages, schema, temperature=0.4, maxOutputTokens=900}){
+    const ai = state.settings.ai;
+
+    if (!ai.enabled || ai.provider !== "openai"){
+      throw new Error("AI is disabled or provider is not set to OpenAI.");
+    }
+    if (!ai.endpoint) throw new Error("AI endpoint is not set.");
+
+    // Strong warning: key in client-side code is not recommended.
+    // This is demo-only unless you use a server-side proxy.
+    const headers = { "Content-Type": "application/json" };
+    if (ai.sendAuthHeader && ai.apiKey){
+      headers["Authorization"] = "Bearer " + ai.apiKey;
+    }
+    if (ai.orgId) headers["OpenAI-Organization"] = ai.orgId;
+    if (ai.projectId) headers["OpenAI-Project"] = ai.projectId;
+
+    const body = {
+      model: ai.model,
+      input: inputMessages,
+      temperature,
+      max_output_tokens: maxOutputTokens
+    };
+
+    if (schema){
+      body.text = {
+        format: {
+          type: "json_schema",
+          name: schema.name || "output",
+          strict: true,
+          schema: schema.schema
+        }
+      };
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), ai.timeoutMs || 25000);
+
+    let res, json;
+    try{
+      res = await fetch(ai.endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+      json = await res.json();
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!res.ok){
+      const msg = json?.error?.message || `Request failed (${res.status})`;
+      throw new Error(msg);
+    }
+
+    // For structured responses, parse the first output_text if present.
+    // Some SDKs provide output_text convenience, but in raw REST we inspect output.
+    // We'll attempt to find an output item with JSON.
+    const out = json?.output || [];
+    const content = out.flatMap(o => o.content || []);
+    const textParts = content.filter(c => c.type === "output_text").map(c => c.text);
+    const combined = textParts.join("\n").trim();
+
+    // If schema is used, model should return valid JSON. Try parse.
+    if (schema){
+      try{
+        return JSON.parse(combined);
+      } catch (e){
+        throw new Error("AI returned non-JSON or invalid JSON in structured mode. Raw:\n" + combined.slice(0,1000));
+      }
+    }
+    return { text: combined, raw: json };
+  }
+
+  function marketingSchema(){
+    return {
+      name: "marketing_assets",
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          listing_title: { type: "string" },
+          hero_headline: { type: "string" },
+          short_description: { type: "string" },
+          long_description: { type: "string" },
+          key_features: {
+            type: "array",
+            minItems: 4,
+            maxItems: 10,
+            items: { type: "string" }
+          },
+          facebook_ads: {
+            type: "array",
+            minItems: 2,
+            maxItems: 5,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                primary_text: { type: "string" },
+                headline: { type: "string" },
+                description: { type: "string" },
+                cta: { type: "string" }
+              },
+              required: ["primary_text","headline","description","cta"]
+            }
+          },
+          instagram_captions: {
+            type: "array",
+            minItems: 2,
+            maxItems: 6,
+            items: { type: "string" }
+          },
+          seo_meta_description: { type: "string" },
+          disclaimers: {
+            type: "array",
+            minItems: 1,
+            maxItems: 6,
+            items: { type: "string" }
+          }
+        },
+        required: [
+          "listing_title","hero_headline","short_description","long_description",
+          "key_features","facebook_ads","instagram_captions","seo_meta_description","disclaimers"
+        ]
+      }
+    };
+  }
+
+  function promoExtractionSchema(){
+    return {
+      name: "promotion",
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          title: { type:"string" },
+          brands: { type:"array", items:{type:"string"}, minItems: 0, maxItems: 10 },
+          categories: { type:"array", items:{type:"string"}, minItems: 0, maxItems: 10 },
+          condition: { type:"array", items:{type:"string"}, minItems: 0, maxItems: 3 },
+          modelContains: { type:"array", items:{type:"string"}, minItems: 0, maxItems: 10 },
+          yearMin: { type:"integer" },
+          yearMax: { type:"integer" },
+          startDate: { type:"string" },
+          endDate: { type:"string" },
+          type: { type:"string" },
+          amount: { type:["number","null"] },
+          apr: { type:["number","null"] },
+          termMonths: { type:["array","null"], items:{type:"integer"} },
+          stackable: { type:"boolean" },
+          notes: { type:"string" }
+        },
+        required: ["title","brands","categories","condition","modelContains","yearMin","yearMax","startDate","endDate","type","amount","apr","termMonths","stackable","notes"]
+      }
+    };
+  }
+
+  /* =========================================================
+     UI: Toast
+     ========================================================= */
+  function toast(msg, meta="", variant=""){
+    const host = $("#toast");
+    const el = document.createElement("div");
+    el.className = "toast-item";
+    el.innerHTML = `
+      <div style="min-width:0;">
+        <div class="msg">${escapeHtml(msg)}</div>
+        ${meta ? `<div class="meta">${escapeHtml(meta)}</div>` : ""}
+      </div>
+      <button class="btn small ghost x" title="Dismiss">Close</button>
+    `;
+    $(".x", el).addEventListener("click", () => el.remove());
+    host.appendChild(el);
+    setTimeout(() => { if (el.isConnected) el.remove(); }, 5200);
+  }
+
+  /* =========================================================
+     UI: Modal
+     ========================================================= */
+  function openModal({title, sub="", bodyHtml=""}){
+    $("#modalTitle").textContent = title;
+    $("#modalSub").textContent = sub;
+    $("#modalBody").innerHTML = bodyHtml;
+    $("#modalBackdrop").classList.add("open");
+  }
+  function closeModal(){
+    $("#modalBackdrop").classList.remove("open");
+    $("#modalBody").innerHTML = "";
+  }
+
+  /* =========================================================
+     UI: Drawer
+     ========================================================= */
+  const DRAWER_TABS = [
+    {id:"overview", label:"Overview"},
+    {id:"deals", label:"Deals"},
+    {id:"quote", label:"Quote"},
+    {id:"marketing", label:"Marketing"}
+  ];
+
+  function openDrawer(unitId, tab="overview"){
+    state.drawer.open = true;
+    state.drawer.unitId = unitId;
+    state.drawer.tab = tab;
+    $("#drawer").classList.add("open");
+    renderDrawer();
+  }
+  function closeDrawer(){
+    state.drawer.open = false;
+    state.drawer.unitId = null;
+    $("#drawer").classList.remove("open");
+  }
+
+  function renderDrawer(){
+    const unit = state.inventory.find(u => u.id === state.drawer.unitId);
+    if (!unit){
+      $("#drawerTitle").textContent = "Unit not found";
+      $("#drawerSub").textContent = "";
+      $("#drawerTabs").innerHTML = "";
+      $("#drawerBody").innerHTML = "";
+      return;
+    }
+
+    const promos = applicablePromosForUnit(unit);
+    const title = `${unit.year} ${unit.make} ${unit.model}${unit.trim ? " " + unit.trim : ""}`.trim();
+    $("#drawerTitle").textContent = title;
+
+    $("#drawerSub").innerHTML = `
+      <span class="pill"><strong>${money(unit.price)}</strong> <span class="muted">Price</span></span>
+      ${unit.msrp ? `<span class="pill"><strong>${money(unit.msrp)}</strong> <span class="muted">MSRP</span></span>` : ""}
+      <span class="pill ${unit.condition==="New" ? "good" : "warn"}"><strong>${escapeHtml(unit.condition)}</strong></span>
+      <span class="pill"><strong>${escapeHtml(unit.category)}</strong></span>
+      <span class="pill brand"><strong>${promos.length}</strong> <span class="muted">matched offers</span></span>
+    `;
+
+    $("#drawerTabs").innerHTML = DRAWER_TABS.map(t => `
+      <div class="tab ${t.id===state.drawer.tab?"active":""}" data-tab="${t.id}">${escapeHtml(t.label)}</div>
+    `).join("");
+
+    $$("#drawerTabs .tab").forEach(el => el.addEventListener("click", () => {
+      state.drawer.tab = el.dataset.tab;
+      renderDrawer();
+    }));
+
+    let body = "";
+    if (state.drawer.tab === "overview") body = renderUnitOverview(unit, promos);
+    if (state.drawer.tab === "deals") body = renderUnitDeals(unit, promos);
+    if (state.drawer.tab === "quote") body = renderUnitQuote(unit, promos);
+    if (state.drawer.tab === "marketing") body = renderUnitMarketing(unit, promos);
+
+    $("#drawerBody").innerHTML = body;
+
+    // Hook buttons after HTML is injected
+    hookDrawerInteractions(unit, promos);
+  }
+
+  function renderUnitOverview(unit, promos){
+    const s = unit.specs || {};
+    const specsRows = Object.entries(s).map(([k,v]) => `
+      <tr>
+        <td style="width:34%; color: var(--muted); text-transform: capitalize;">${escapeHtml(k)}</td>
+        <td>${escapeHtml(String(v))}</td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="panel">
+        <div class="hero">
+          <h1>Unit overview</h1>
+          <p>Fast scan of specs, price, and matched offers. Use the tabs to jump into a quote or generate marketing copy.</p>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="pill"><strong>${escapeHtml(unit.stock || "N/A")}</strong> <span class="muted">Stock</span></div>
+            <div class="pill"><strong>${escapeHtml(unit.vin || "N/A")}</strong> <span class="muted">VIN</span></div>
+            <div class="pill"><strong>${escapeHtml(unit.make)}</strong> <span class="muted">Brand</span></div>
+            <div class="pill"><strong>${escapeHtml(unit.year)}</strong> <span class="muted">Year</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button class="btn primary" data-action="drawer-go" data-tab="quote">Build a quote</button>
+            <button class="btn" data-action="drawer-go" data-tab="deals">View matched deals</button>
+            <button class="btn good" data-action="drawer-go" data-tab="marketing">Generate listing copy</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Demo note:</strong> This app ships with sample inventory and promotions so you can test the flow immediately.
+            Replace with your real inventory feed and OEM promo data in the <strong>Data</strong> tab.
+          </div>
+
+          <div class="divider"></div>
+
+          <table class="table">
+            <thead>
+              <tr><th>Spec</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              ${specsRows || `<tr><td colspan="2" class="muted">No specs present on this unit.</td></tr>`}
+            </tbody>
+          </table>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Description:</strong><br/>
+            ${escapeHtml(unit.description || "No description provided.")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderUnitDeals(unit, promos){
+    const rows = promos.map(p => {
+      const typeLabel = p.type === "cash_rebate" ? "Cash rebate"
+        : p.type === "apr_offer" ? "APR offer"
+        : p.type === "accessory_credit" ? "Accessory credit"
+        : p.type;
+
+      const value = p.type === "apr_offer"
+        ? `${pct(p.apr)}${Array.isArray(p.termMonths) && p.termMonths.length ? ` (terms: ${p.termMonths.join(", ")} mo)` : ""}`
+        : (p.amount ? money(p.amount) : "-");
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:720; letter-spacing:-0.01em;">${escapeHtml(p.title)}</div>
+            <div class="muted" style="font-size:12px; margin-top:4px;">${escapeHtml(typeLabel)} • Active: ${escapeHtml(p.startDate)} to ${escapeHtml(p.endDate)}</div>
+            ${p.sourceUrl ? `<div class="muted" style="font-size:12px; margin-top:2px;">Source: <span class="mono">${escapeHtml(p.sourceUrl)}</span></div>` : ""}
+          </td>
+          <td style="width: 34%;">
+            <div class="pill ${p.type==="apr_offer"?"brand":"good"}"><strong>${escapeHtml(value)}</strong></div>
+            <div class="row" style="margin-top:8px;">
+              ${p.type !== "apr_offer" ? `<button class="btn small" data-action="apply-cash" data-promo="${p.id}">Apply to quote</button>` : ""}
+              ${p.type === "apr_offer" ? `<button class="btn small" data-action="apply-apr" data-promo="${p.id}">Apply APR to quote</button>` : ""}
+              <button class="btn small" data-action="show-promo" data-promo="${p.id}">Details</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    return `
+      <div class="panel">
+        <div class="hero">
+          <h1>Matched deals</h1>
+          <p>These promotions match this unit based on brand/category/year/condition/model rules. Apply a deal to the quote tab to see the impact.</p>
+        </div>
+        <div class="bd">
+          ${promos.length ? `
+            <table class="table">
+              <thead><tr><th>Promotion</th><th>Value / actions</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          ` : `
+            <div class="notice">
+              <strong>No active promotions matched this unit.</strong><br/>
+              Try adjusting promo rules in Data, or add real OEM promotions and re-run matching.
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderUnitQuote(unit, promos){
+    const draft = getQuoteDraft(unit.id);
+
+    // If draft hasn't selected promos, pre-select best cash and best apr for best UX.
+    const bestCash = bestCashPromo(promos);
+    if (!draft.selectedCashPromoId && bestCash && (bestCash.type==="cash_rebate" || bestCash.type==="accessory_credit")){
+      draft.selectedCashPromoId = bestCash.id;
+    }
+    const bestApr = bestAprPromo(promos, 60);
+    if (!draft.selectedAprPromoId && bestApr && bestApr.type==="apr_offer"){
+      draft.selectedAprPromoId = bestApr.id;
+    }
+
+    const otd = computeOTD(unit, draft);
+    const scenarios = buildScenarios(unit, draft, otd);
+
+    const cashOptions = promos.filter(p => p.type === "cash_rebate" || p.type === "accessory_credit");
+    const aprOptions = promos.filter(p => p.type === "apr_offer");
+
+    const cashSel = draft.selectedCashPromoId || "";
+    const aprSel = draft.selectedAprPromoId || "";
+
+    const scenarioRows = scenarios.map(s => `
+      <tr>
+        <td class="mono">${s.term}</td>
+        <td>${escapeHtml(s.aprLabel)}</td>
+        <td class="mono">${pct(s.apr)}</td>
+        <td><strong>${money(s.monthly)}</strong></td>
+        <td class="mono">${money(s.totalInterest)}</td>
+        <td class="mono">${money(s.totalPaid)}</td>
+      </tr>
+    `).join("");
+
+    return `
+      <div class="panel">
+        <div class="hero">
+          <h1>Build a deal</h1>
+          <p>Estimate out-the-door pricing and compare payment scenarios. Apply matched promotions with one click.</p>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div class="pill"><strong>${money(unit.price)}</strong> <span class="muted">Sale price</span></div>
+            ${unit.msrp ? `<div class="pill"><strong>${money(unit.msrp)}</strong> <span class="muted">MSRP</span></div>` : ""}
+            <div class="pill brand"><strong>${promos.length}</strong> <span class="muted">matched promos</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row" style="align-items:flex-start;">
+            <div style="flex: 1; min-width: 250px;">
+              <div class="field">
+                <label>Base price</label>
+                <select data-quote="basePriceMode">
+                  <option value="sale" ${draft.basePriceMode==="sale"?"selected":""}>Use sale price (${money(unit.price)})</option>
+                  <option value="msrp" ${draft.basePriceMode==="msrp"?"selected":""}>Use MSRP (${unit.msrp ? money(unit.msrp) : "N/A"})</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Manual discount</label>
+                <input data-quote="manualDiscount" value="${escapeHtml(String(draft.manualDiscount))}" placeholder="0" />
+              </div>
+
+              <div class="field">
+                <label>Cash / credit promo</label>
+                <select data-quote="selectedCashPromoId">
+                  <option value="">None</option>
+                  ${cashOptions.map(p => `
+                    <option value="${p.id}" ${cashSel===p.id?"selected":""}>${escapeHtml(p.title)} (${p.amount ? money(p.amount) : ""})</option>
+                  `).join("")}
+                </select>
+              </div>
+
+              <div class="field">
+                <label>APR promo (optional)</label>
+                <select data-quote="selectedAprPromoId">
+                  <option value="">None</option>
+                  ${aprOptions.map(p => `
+                    <option value="${p.id}" ${aprSel===p.id?"selected":""}>${escapeHtml(p.title)} (${pct(p.apr)})</option>
+                  `).join("")}
+                </select>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Down payment</label>
+                  <input data-quote="down" value="${escapeHtml(String(draft.down))}" placeholder="1500" />
+                </div>
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Trade allowance</label>
+                  <input data-quote="tradeAllowance" value="${escapeHtml(String(draft.tradeAllowance))}" placeholder="0" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Trade payoff (if financed)</label>
+                <input data-quote="tradePayoff" value="${escapeHtml(String(draft.tradePayoff))}" placeholder="0" />
+              </div>
+
+              <div class="field">
+                <label>Apply trade allowance to taxable amount</label>
+                <select data-quote="applyTradeTaxCredit">
+                  <option value="true" ${draft.applyTradeTaxCredit ? "selected":""}>Yes</option>
+                  <option value="false" ${!draft.applyTradeTaxCredit ? "selected":""}>No</option>
+                </select>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Sales tax rate (%)</label>
+                  <input data-quote="taxRate" value="${escapeHtml(String(draft.taxRate))}" />
+                </div>
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Standard APR (%)</label>
+                  <input data-quote="defaultApr" value="${escapeHtml(String(draft.defaultApr))}" />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Doc fee</label>
+                  <input data-quote="docFee" value="${escapeHtml(String(draft.docFee))}" />
+                </div>
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Registration</label>
+                  <input data-quote="regFee" value="${escapeHtml(String(draft.regFee))}" />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Setup</label>
+                  <input data-quote="setupFee" value="${escapeHtml(String(draft.setupFee))}" />
+                </div>
+                <div class="field" style="flex:1; min-width: 140px;">
+                  <label>Destination</label>
+                  <input data-quote="destinationFee" value="${escapeHtml(String(draft.destinationFee))}" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Other fees</label>
+                <input data-quote="otherFee" value="${escapeHtml(String(draft.otherFee))}" />
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row">
+                <button class="btn" data-action="copy-quote">Copy quote JSON</button>
+                <button class="btn" data-action="print-quote">Print</button>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="notice">
+                <strong>Estimate only.</strong> Taxes and fees vary. Promotions may have eligibility rules. Use this to build a clear conversation, then verify details in the real deal jacket.
+              </div>
+            </div>
+
+            <div style="flex: 1.15; min-width: 280px;">
+              <div class="kpi-row">
+                <div class="kpi">
+                  <div class="v">${money(otd.subtotal)}</div>
+                  <div class="l">Subtotal (after discount/promos)</div>
+                </div>
+                <div class="kpi">
+                  <div class="v">${money(otd.tax)}</div>
+                  <div class="l">Estimated tax (${pct(otd.taxRatePct)})</div>
+                </div>
+                <div class="kpi">
+                  <div class="v">${money(otd.feeTotal)}</div>
+                  <div class="l">Fees</div>
+                </div>
+                <div class="kpi">
+                  <div class="v">${money(otd.otdBeforeDownTrade)}</div>
+                  <div class="l">OTD (before down/trade)</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="kpi-row">
+                <div class="kpi">
+                  <div class="v">${money(otd.down)}</div>
+                  <div class="l">Down</div>
+                </div>
+                <div class="kpi">
+                  <div class="v">${money(otd.tradeAllowance)}</div>
+                  <div class="l">Trade allowance</div>
+                </div>
+                <div class="kpi">
+                  <div class="v">${money(otd.tradePayoff)}</div>
+                  <div class="l">Trade payoff</div>
+                </div>
+                <div class="kpi">
+                  <div class="v">${money(otd.amountFinanced)}</div>
+                  <div class="l">Estimated amount financed</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Term (mo)</th>
+                    <th>APR source</th>
+                    <th>APR</th>
+                    <th>Monthly</th>
+                    <th>Total interest</th>
+                    <th>Total paid</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${scenarioRows}
+                </tbody>
+              </table>
+
+              <div class="divider"></div>
+
+              <div class="notice">
+                <strong>What this tab demonstrates:</strong><br/>
+                1) Promotions auto-apply and update OTD and payment math.<br/>
+                2) You can compare multiple terms instantly.<br/>
+                3) The quote JSON is shareable (sales, finance, follow-up).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderUnitMarketing(unit, promos){
+    const draft = getQuoteDraft(unit.id);
+    const otd = computeOTD(unit, draft);
+
+    const offline = offlineListingPack(unit, promos, otd);
+
+    const aiEnabled = state.settings.ai.enabled && state.settings.ai.provider === "openai";
+    const aiPill = aiEnabled
+      ? `<span class="pill good"><strong>AI enabled</strong></span>`
+      : `<span class="pill warn"><strong>AI disabled</strong></span>`;
+
+    return `
+      <div class="panel">
+        <div class="hero">
+          <h1>Listing Studio</h1>
+          <p>Generate clean listing copy and short-form ads from specs, deals, and quote context. Use offline templates or optionally generate with AI.</p>
+        </div>
+        <div class="bd">
+          <div class="row">
+            ${aiPill}
+            <div class="pill brand"><strong>${promos.length}</strong> <span class="muted">matched promos</span></div>
+            <div class="pill"><strong>${money(otd.otdBeforeDownTrade)}</strong> <span class="muted">OTD estimate</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button class="btn good" data-action="copy-pack" data-pack="offline">Copy offline pack</button>
+            <button class="btn" data-action="copy-section" data-section="title">Copy title</button>
+            <button class="btn" data-action="copy-section" data-section="short">Copy short</button>
+            <button class="btn" data-action="copy-section" data-section="long">Copy long</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>Offline mode:</strong> always works. It uses templates + spec highlights. For production-grade output, wire the AI button to a server-side proxy so you are not exposing API keys in the browser.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label>Listing title</label>
+            <input id="mk_title" value="${escapeHtml(offline.title)}" />
+          </div>
+
+          <div class="field">
+            <label>Short description</label>
+            <textarea id="mk_short">${escapeHtml(offline.shortDesc)}</textarea>
+          </div>
+
+          <div class="field">
+            <label>Long description</label>
+            <textarea id="mk_long">${escapeHtml(offline.longDesc)}</textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label>Key features (bullets)</label>
+            <textarea id="mk_bullets">${escapeHtml(offline.bullets.map(b=>"- "+b).join("\n"))}</textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label>Facebook ad variants (offline)</label>
+            <textarea id="mk_fb">${escapeHtml(offline.facebookAds.map((a,i)=>(
+              `Variant ${i+1}\nPrimary: ${a.primary_text}\nHeadline: ${a.headline}\nDescription: ${a.description}\nCTA: ${a.cta}\n`
+            )).join("\n"))}</textarea>
+          </div>
+
+          <div class="field">
+            <label>Instagram captions (offline)</label>
+            <textarea id="mk_ig">${escapeHtml(offline.instagramCaptions.map((c,i)=>`${i+1}. ${c}`).join("\n"))}</textarea>
+          </div>
+
+          <div class="field">
+            <label>SEO meta description</label>
+            <textarea id="mk_seo">${escapeHtml(offline.seoMeta)}</textarea>
+          </div>
+
+          <div class="field">
+            <label>Disclaimers</label>
+            <textarea id="mk_disc">${escapeHtml(offline.disclaimers.map(d=>"- "+d).join("\n"))}</textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button class="btn primary" data-action="ai-generate" ${aiEnabled ? "" : "disabled"}>Generate with AI</button>
+            <button class="btn" data-action="ai-explain" ${aiEnabled ? "" : "disabled"}>AI: Explain best offers (sales script)</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="notice">
+            <strong>What this tab demonstrates:</strong><br/>
+            - Turning specs + promos into ready-to-post copy with consistent formatting.<br/>
+            - If AI is enabled, generating structured assets that can feed a real listing pipeline.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function hookDrawerInteractions(unit, promos){
+    // Generic tab jump
+    $$("[data-action='drawer-go']").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const tab = btn.dataset.tab || "overview";
+        state.drawer.tab = tab;
+        renderDrawer();
+      });
+    });
+
+    // Deal actions: apply promo to quote
+    $$("[data-action='apply-cash']").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const promoId = btn.dataset.promo;
+        const draft = getQuoteDraft(unit.id);
+        draft.selectedCashPromoId = promoId;
+        state.drawer.tab = "quote";
+        toast("Applied cash/credit promo to quote.", "Recalculating estimate...");
+        renderDrawer();
+      });
+    });
+    $$("[data-action='apply-apr']").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const promoId = btn.dataset.promo;
+        const draft = getQuoteDraft(unit.id);
+        draft.selectedAprPromoId = promoId;
+        state.drawer.tab = "quote";
+        toast("Applied APR promo to quote.", "Recalculating scenarios...");
+        renderDrawer();
+      });
+    });
+
+    $$("[data-action='show-promo']").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const promo = state.promos.find(p => p.id === btn.dataset.promo);
+        if (!promo) return;
+        openModal({
+          title: promo.title,
+          sub: `${promo.type} • Active ${promo.startDate} to ${promo.endDate}`,
+          bodyHtml: renderPromoDetails(promo)
+        });
+      });
+    });
+
+    // Quote fields update
+    $$("[data-quote]").forEach(inp => {
+      inp.addEventListener("input", () => {
+        const draft = getQuoteDraft(unit.id);
+        const key = inp.getAttribute("data-quote");
+
+        if (key === "applyTradeTaxCredit"){
+          draft[key] = (inp.value === "true");
+        } else if (key === "selectedCashPromoId" || key === "selectedAprPromoId" || key === "basePriceMode"){
+          draft[key] = inp.value || null;
+        } else {
+          draft[key] = safeNum(inp.value, 0);
+        }
+        renderDrawer();
+      });
+    });
+
+    // Quote actions
+    $$("[data-action='copy-quote']").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const draft = getQuoteDraft(unit.id);
+        const otd = computeOTD(unit, draft);
+        const scenarios = buildScenarios(unit, draft, otd);
+        const payload = {
+          version: APP_VERSION,
+          generatedAt: new Date().toISOString(),
+          unit: {
+            id: unit.id,
+            year: unit.year,
+            make: unit.make,
+            model: unit.model,
+            trim: unit.trim,
+            category: unit.category,
+            condition: unit.condition,
+            price: unit.price,
+            msrp: unit.msrp,
+            stock: unit.stock,
+            vin: unit.vin
+          },
+          selectedPromos: {
+            cash: state.promos.find(p=>p.id===draft.selectedCashPromoId) || null,
+            apr: state.promos.find(p=>p.id===draft.selectedAprPromoId) || null
+          },
+          quote: otd,
+          scenarios
+        };
+        await copyText(JSON.stringify(payload, null, 2));
+        toast("Quote JSON copied.", "Paste into email, CRM notes, or an internal quote system.");
+      });
+    });
+
+    $$("[data-action='print-quote']").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const draft = getQuoteDraft(unit.id);
+        const otd = computeOTD(unit, draft);
+        const scenarios = buildScenarios(unit, draft, otd);
+        const html = renderPrintableQuote(unit, draft, otd, scenarios);
+        const w = window.open("", "_blank");
+        if (!w) { toast("Popup blocked.", "Allow popups to print."); return; }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        setTimeout(() => w.print(), 200);
+      });
+    });
+
+    // Marketing copy actions
+    $$("[data-action='copy-pack']").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const pack = {
+          title: $("#mk_title")?.value || "",
+          short: $("#mk_short")?.value || "",
+          long: $("#mk_long")?.value || "",
+          bullets: $("#mk_bullets")?.value || "",
+          facebook: $("#mk_fb")?.value || "",
+          instagram: $("#mk_ig")?.value || "",
+          seo: $("#mk_seo")?.value || "",
+          disclaimers: $("#mk_disc")?.value || ""
+        };
+        await copyText(JSON.stringify(pack, null, 2));
+        toast("Listing pack copied.", "Drop into your listing system or marketing workflow.");
+      });
+    });
+
+    $$("[data-action='copy-section']").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const sec = btn.dataset.section;
+        let t = "";
+        if (sec==="title") t = $("#mk_title")?.value || "";
+        if (sec==="short") t = $("#mk_short")?.value || "";
+        if (sec==="long") t = $("#mk_long")?.value || "";
+        await copyText(t);
+        toast("Copied.", sec);
+      });
+    });
+
+    $$("[data-action='ai-generate']").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        try{
+          btn.disabled = true;
+          toast("AI generating assets...", "If this hangs, check endpoint/CORS or use a proxy.");
+
+          const draft = getQuoteDraft(unit.id);
+          const otd = computeOTD(unit, draft);
+          const scenarios = buildScenarios(unit, draft, otd);
+
+          const bestCash = state.promos.find(p=>p.id===draft.selectedCashPromoId) || bestCashPromo(promos);
+          const aprPromo = state.promos.find(p=>p.id===draft.selectedAprPromoId) || bestAprPromo(promos, 60);
+
+          const prompt = [
+            `Generate dealership-ready marketing assets for this unit.`,
+            `Requirements:`,
+            `- Sound like a large national powersports marketplace listing: clean, modern, confident, non-salesy.`,
+            `- Do not invent specs. Use only the provided data.`,
+            `- Mention price and any matched promotion carefully, using "may qualify" language.`,
+            `- Include a clear disclaimer.`,
+            ``,
+            `UNIT:`,
+            JSON.stringify({
+              year: unit.year,
+              make: unit.make,
+              model: unit.model,
+              trim: unit.trim,
+              category: unit.category,
+              condition: unit.condition,
+              price: unit.price,
+              msrp: unit.msrp,
+              stock: unit.stock,
+              vin: unit.vin,
+              specs: unit.specs || {},
+              description: unit.description || ""
+            }, null, 2),
+            ``,
+            `MATCHED PROMOS (rules-based matches):`,
+            JSON.stringify(promos, null, 2),
+            ``,
+            `SELECTED CASH PROMO:`,
+            JSON.stringify(bestCash || null, null, 2),
+            ``,
+            `SELECTED APR PROMO:`,
+            JSON.stringify(aprPromo || null, null, 2),
+            ``,
+            `QUOTE ESTIMATE (for context):`,
+            JSON.stringify({
+              subtotal: otd.subtotal,
+              tax: otd.tax,
+              feeTotal: otd.feeTotal,
+              otdBeforeDownTrade: otd.otdBeforeDownTrade,
+              amountFinanced: otd.amountFinanced,
+              scenarios: scenarios.map(s=>({term:s.term, apr:s.apr, monthly:s.monthly}))
+            }, null, 2)
+          ].join("\n");
+
+          const result = await aiRequest({
+            inputMessages: [
+              { role:"system", content: "You are a marketing assistant for a powersports dealership. Return only valid JSON matching the schema." },
+              { role:"user", content: prompt }
+            ],
+            schema: marketingSchema(),
+            temperature: 0.35,
+            maxOutputTokens: 1100
+          });
+
+          // Populate fields
+          $("#mk_title").value = result.listing_title || $("#mk_title").value;
+          $("#mk_short").value = result.short_description || $("#mk_short").value;
+          $("#mk_long").value = result.long_description || $("#mk_long").value;
+          $("#mk_bullets").value = (result.key_features || []).map(x=>"- "+x).join("\n");
+          $("#mk_fb").value = (result.facebook_ads || []).map((a,i)=>(
+            `Variant ${i+1}\nPrimary: ${a.primary_text}\nHeadline: ${a.headline}\nDescription: ${a.description}\nCTA: ${a.cta}\n`
+          )).join("\n");
+          $("#mk_ig").value = (result.instagram_captions || []).map((c,i)=>`${i+1}. ${c}`).join("\n");
+          $("#mk_seo").value = result.seo_meta_description || $("#mk_seo").value;
+          $("#mk_disc").value = (result.disclaimers || []).map(d=>"- "+d).join("\n");
+
+          toast("AI assets generated.", "Copied into fields for editing and export.");
+        } catch (e){
+          toast("AI generation failed.", String(e.message || e), "bad");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+
+    $$("[data-action='ai-explain']").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        try{
+          btn.disabled = true;
+
+          const draft = getQuoteDraft(unit.id);
+          const otd = computeOTD(unit, draft);
+          const scenarios = buildScenarios(unit, draft, otd);
+          const cashPromo = state.promos.find(p=>p.id===draft.selectedCashPromoId) || null;
+          const aprPromo = state.promos.find(p=>p.id===draft.selectedAprPromoId) || null;
+
+          const prompt = [
+            `Write a short, dealer-friendly script to explain the quote to a customer.`,
+            `Style: clear, minimal, no hype, like a large national marketplace rep.`,
+            `Include:`,
+            `- the unit name, price, and the key line items (tax/fees)`,
+            `- if a promo is selected, say "may qualify" and avoid making guarantees`,
+            `- offer two payment term options with monthly payments`,
+            `- end with a short CTA to schedule a visit or reserve`,
+            ``,
+            `Unit: ${unit.year} ${unit.make} ${unit.model} ${unit.trim || ""}`.trim(),
+            `Price: ${money(unit.price)} (MSRP ${unit.msrp ? money(unit.msrp) : "N/A"})`,
+            `Selected cash promo: ${cashPromo ? (cashPromo.title + " (" + money(cashPromo.amount) + ")") : "None"}`,
+            `Selected APR promo: ${aprPromo ? (aprPromo.title + " (" + pct(aprPromo.apr) + ")") : "None"}`,
+            `OTD estimate (before down/trade): ${money(otd.otdBeforeDownTrade)}`,
+            `Amount financed: ${money(otd.amountFinanced)}`,
+            `Scenarios:`,
+            ...scenarios.slice(0,3).map(s => `- ${s.term} mo at ${pct(s.apr)}: ${money(s.monthly)}/mo`)
+          ].join("\n");
+
+          const result = await aiRequest({
+            inputMessages: [
+              { role:"system", content: "You are a sales assistant. Provide a short script in plain text." },
+              { role:"user", content: prompt }
+            ],
+            schema: null,
+            temperature: 0.45,
+            maxOutputTokens: 420
+          });
+
+          openModal({
+            title: "AI sales script",
+            sub: "Copy/paste for SMS, email, or a call script.",
+            bodyHtml: `
+              <div class="field">
+                <label>Script</label>
+                <textarea id="ai_script">${escapeHtml(result.text || "")}</textarea>
+              </div>
+              <div class="row">
+                <button class="btn primary" id="ai_script_copy">Copy</button>
+              </div>
+            `
+          });
+          $("#ai_script_copy").addEventListener("click", async () => {
+            await copyText($("#ai_script").value);
+            toast("Copied sales script.", "Ready to paste.");
+          });
+
+        } catch (e){
+          toast("AI explanation failed.", String(e.message || e), "bad");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function renderPromoDetails(p){
+    const matchRules = [
+      p.brands?.length ? `Brands: ${p.brands.join(", ")}` : "Brands: any",
+      p.categories?.length ? `Categories: ${p.categories.join(", ")}` : "Categories: any",
+      p.condition?.length ? `Condition: ${p.condition.join(", ")}` : "Condition: any",
+      (Number.isFinite(p.yearMin) || Number.isFinite(p.yearMax)) ? `Years: ${p.yearMin || "Any"} to ${p.yearMax || "Any"}` : "Years: any",
+      p.modelContains?.length ? `Model contains: ${p.modelContains.join(", ")}` : "Model contains: (none)"
+    ];
+
+    const value = p.type === "apr_offer"
+      ? `${pct(p.apr)}${Array.isArray(p.termMonths) && p.termMonths.length ? ` (terms: ${p.termMonths.join(", ")} mo)` : ""}`
+      : (p.amount ? money(p.amount) : "-");
+
+    return `
+      <div class="notice">
+        <strong>Value:</strong> ${escapeHtml(value)}<br/>
+        <strong>Type:</strong> ${escapeHtml(p.type)}<br/>
+        <strong>Stackable:</strong> ${p.stackable ? "Yes" : "No"}<br/>
+        <strong>Dates:</strong> ${escapeHtml(p.startDate)} to ${escapeHtml(p.endDate)}<br/>
+        ${p.sourceUrl ? `<strong>Source:</strong> <span class="mono">${escapeHtml(p.sourceUrl)}</span><br/>` : ""}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="notice">
+        <strong>Match rules:</strong><br/>
+        ${matchRules.map(r => `• ${escapeHtml(r)}`).join("<br/>")}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="notice">
+        <strong>Notes:</strong><br/>
+        ${escapeHtml(p.notes || "None")}
+      </div>
+    `;
+  }
+
+  function renderPrintableQuote(unit, draft, otd, scenarios){
+    const title = `${unit.year} ${unit.make} ${unit.model}${unit.trim ? " " + unit.trim : ""}`.trim();
+    const cashPromo = state.promos.find(p=>p.id===draft.selectedCashPromoId) || null;
+    const aprPromo = state.promos.find(p=>p.id===draft.selectedAprPromoId) || null;
+
+    const rows = scenarios.map(s => `
+      <tr>
+        <td>${s.term}</td><td>${s.apr.toFixed(2)}%</td>
+        <td>${money(s.monthly)}</td><td>${money(s.totalInterest)}</td><td>${money(s.totalPaid)}</td>
+      </tr>
+    `).join("");
+
+    return `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Quote - ${escapeHtml(title)}</title>
+<style>
+  body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; padding:20px; color:#0b1220;}
+  h1{margin:0 0 6px 0; font-size:20px;}
+  .muted{color:#58677c; font-size:12px;}
+  .box{border:1px solid #d7deea; border-radius:12px; padding:12px; margin:12px 0;}
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th,td{border-bottom:1px solid #e5eaf2; padding:8px; font-size:12px; text-align:left; vertical-align:top;}
+  th{color:#445469; font-weight:650;}
+  .kpi{display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;}
+  .k{border:1px solid #e5eaf2; border-radius:12px; padding:10px;}
+  .k .v{font-weight:800;}
+  .k .l{font-size:12px; color:#58677c; margin-top:4px;}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas; font-size:12px;}
+</style>
+</head>
+<body>
+  <h1>Quote estimate</h1>
+  <div class="muted">${escapeHtml(new Date().toLocaleString())}</div>
+
+  <div class="box">
+    <div style="font-weight:800">${escapeHtml(title)}</div>
+    <div class="muted">Stock: ${escapeHtml(unit.stock||"N/A")} • VIN: ${escapeHtml(unit.vin||"N/A")} • Condition: ${escapeHtml(unit.condition)} • Category: ${escapeHtml(unit.category)}</div>
+    <div class="muted">Price: ${money(unit.price)} ${unit.msrp ? `• MSRP: ${money(unit.msrp)}` : ""}</div>
+  </div>
+
+  <div class="box">
+    <div class="kpi">
+      <div class="k"><div class="v">${money(otd.subtotal)}</div><div class="l">Subtotal</div></div>
+      <div class="k"><div class="v">${money(otd.tax)}</div><div class="l">Tax (${otd.taxRatePct.toFixed(2)}%)</div></div>
+      <div class="k"><div class="v">${money(otd.feeTotal)}</div><div class="l">Fees</div></div>
+      <div class="k"><div class="v">${money(otd.otdBeforeDownTrade)}</div><div class="l">OTD (before down/trade)</div></div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="kpi">
+      <div class="k"><div class="v">${money(otd.down)}</div><div class="l">Down</div></div>
+      <div class="k"><div class="v">${money(otd.tradeAllowance)}</div><div class="l">Trade allowance</div></div>
+      <div class="k"><div class="v">${money(otd.tradePayoff)}</div><div class="l">Trade payoff</div></div>
+      <div class="k"><div class="v">${money(otd.amountFinanced)}</div><div class="l">Amount financed</div></div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="muted">
+      Cash promo: ${escapeHtml(cashPromo ? cashPromo.title : "None")}<br/>
+      APR promo: ${escapeHtml(aprPromo ? aprPromo.title : "None")}
+    </div>
+  </div>
+
+  <div class="box">
+    <div style="font-weight:800">Payment scenarios</div>
+    <table>
+      <thead><tr><th>Term (mo)</th><th>APR</th><th>Monthly</th><th>Total interest</th><th>Total paid</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="muted" style="margin-top:10px;">
+      Disclaimer: estimates only. Taxes, fees, and eligibility vary. Confirm details with the dealer.
+    </div>
+  </div>
+</body>
+</html>
+    `;
+  }
+
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+  }
+
+  /* =========================================================
+     Pages
+     ========================================================= */
+  function renderSidebar(){
+    const el = $("#sidebar");
+    if (!state.ui.showSidebar || state.route === "data"){
+      el.innerHTML = "";
+      return;
+    }
+
+    if (state.route === "inventory"){
+      const makes = ["Any", ...uniqueValues(state.inventory, "make")];
+      const cats = ["Any", ...uniqueValues(state.inventory, "category")];
+      const conds = ["Any", ...uniqueValues(state.inventory, "condition")];
+
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hd">
+            <div>
+              <h2>Filters</h2>
+              <div class="sub">Refine results, like a national marketplace.</div>
+            </div>
+            <button class="btn small ghost" id="resetFilters">Reset</button>
+          </div>
+          <div class="bd">
+            <div class="field">
+              <label>Condition</label>
+              <select id="f_condition">
+                ${conds.map(v => `<option ${state.filters.condition===v?"selected":""}>${escapeHtml(v)}</option>`).join("")}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Make</label>
+              <select id="f_make">
+                ${makes.map(v => `<option ${state.filters.make===v?"selected":""}>${escapeHtml(v)}</option>`).join("")}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Category</label>
+              <select id="f_category">
+                ${cats.map(v => `<option ${state.filters.category===v?"selected":""}>${escapeHtml(v)}</option>`).join("")}
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="field" style="flex:1; min-width: 120px;">
+                <label>Year min</label>
+                <input id="f_yearMin" value="${escapeHtml(String(state.filters.yearMin||""))}" placeholder="e.g. 2022"/>
+              </div>
+              <div class="field" style="flex:1; min-width: 120px;">
+                <label>Year max</label>
+                <input id="f_yearMax" value="${escapeHtml(String(state.filters.yearMax||""))}" placeholder="e.g. 2025"/>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field" style="flex:1; min-width: 120px;">
+                <label>Price min</label>
+                <input id="f_priceMin" value="${escapeHtml(String(state.filters.priceMin||""))}" placeholder="e.g. 7000"/>
+              </div>
+              <div class="field" style="flex:1; min-width: 120px;">
+                <label>Price max</label>
+                <input id="f_priceMax" value="${escapeHtml(String(state.filters.priceMax||""))}" placeholder="e.g. 18000"/>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field">
+              <label>Sort</label>
+              <select id="sort">
+                <option value="bestDeals" ${state.sort==="bestDeals"?"selected":""}>Best deals first</option>
+                <option value="priceAsc" ${state.sort==="priceAsc"?"selected":""}>Price: low to high</option>
+                <option value="priceDesc" ${state.sort==="priceDesc"?"selected":""}>Price: high to low</option>
+                <option value="yearDesc" ${state.sort==="yearDesc"?"selected":""}>Year: newest first</option>
+                <option value="yearAsc" ${state.sort==="yearAsc"?"selected":""}>Year: oldest first</option>
+              </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="notice">
+              Tip: type <code>under 15000</code> or a year like <code>2025</code> in the search box to filter quickly.
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Hook filter events
+      $("#resetFilters").addEventListener("click", () => {
+        state.filters = {condition:"Any", make:"Any", category:"Any", yearMin:"", yearMax:"", priceMin:"", priceMax:""};
+        render();
+      });
+      $("#f_condition").addEventListener("change", e => {state.filters.condition = e.target.value; render();});
+      $("#f_make").addEventListener("change", e => {state.filters.make = e.target.value; render();});
+      $("#f_category").addEventListener("change", e => {state.filters.category = e.target.value; render();});
+      $("#f_yearMin").addEventListener("input", e => {state.filters.yearMin = e.target.value; renderDebounced();});
+      $("#f_yearMax").addEventListener("input", e => {state.filters.yearMax = e.target.value; renderDebounced();});
+      $("#f_priceMin").addEventListener("input", e => {state.filters.priceMin = e.target.value; renderDebounced();});
+      $("#f_priceMax").addEventListener("input", e => {state.filters.priceMax = e.target.value; renderDebounced();});
+      $("#sort").addEventListener("change", e => {state.sort = e.target.value; render();});
+    }
+
+    if (state.route === "deals"){
+      const active = state.promos.filter(p => promoIsActive(p));
+      const inactive = state.promos.filter(p => !promoIsActive(p));
+
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hd">
+            <div>
+              <h2>Deal Engine</h2>
+              <div class="sub">${active.length} active promos • ${inactive.length} inactive</div>
+            </div>
+            <button class="btn small ghost" id="addPromo">Add promo</button>
+          </div>
+          <div class="bd">
+            <div class="notice">
+              Promotions are matched to inventory via rules (brand/category/condition/year/model keywords).
+              Click a promo to see matched units, then apply it directly to a quote.
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field">
+              <label>Quick filter</label>
+              <input id="promoFilter" placeholder="Search promos by title/brand/category..." />
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row">
+              <button class="btn" id="exportPromos">Export promos JSON</button>
+              <button class="btn danger" id="resetPromos">Reset promos</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      $("#addPromo").addEventListener("click", () => openPromoComposer());
+      $("#exportPromos").addEventListener("click", () => downloadJson("promotions.json", state.promos));
+      $("#resetPromos").addEventListener("click", () => {
+        if (!confirm("Reset promotions to demo set?")) return;
+        state.promos = structuredClone(DEMO.promos);
+        persist();
+        toast("Promotions reset.", "Demo promos restored.");
+        render();
+      });
+      $("#promoFilter").addEventListener("input", e => {
+        state._promoFilter = e.target.value;
+        render();
+      });
+    }
+
+    if (state.route === "quotes"){
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hd">
+            <div>
+              <h2>Quote Builder</h2>
+              <div class="sub">Pick a unit, build a deal, copy JSON, print.</div>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="notice">
+              This page is the "finance desk in a browser" demo. Use the inventory list to pick a unit, then tune the quote inputs.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (state.route === "studio"){
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hd">
+            <div>
+              <h2>Listing Studio</h2>
+              <div class="sub">Generate listing copy like a national marketplace.</div>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="notice">
+              Select a unit to generate a title, descriptions, and ad variants. Offline templates work instantly.
+              Optional AI generation is in the Data tab.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function renderMain(){
+    const el = $("#main");
+
+    if (state.route === "inventory"){
+      const items = getFilteredInventory();
+
+      const activePromoCount = state.promos.filter(p => promoIsActive(p)).length;
+      const totalDealsMatched = items.reduce((acc,u) => acc + (u._promos?.length||0), 0);
+
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hero">
+            <h1>Inventory</h1>
+            <p>Search units. See matched promotions. Build a quote. Generate listing copy. All from one place.</p>
+
+            <div class="kpi-row">
+              <div class="kpi"><div class="v">${items.length}</div><div class="l">Units in results</div></div>
+              <div class="kpi"><div class="v">${activePromoCount}</div><div class="l">Active promotions</div></div>
+              <div class="kpi"><div class="v">${totalDealsMatched}</div><div class="l">Total promo matches</div></div>
+              <div class="kpi"><div class="v">${isoToday()}</div><div class="l">Today</div></div>
+            </div>
+          </div>
+
+          <div class="bd">
+            ${items.length ? `
+              <div class="grid">
+                ${items.map(u => renderUnitCard(u)).join("")}
+              </div>
+            ` : `
+              <div class="notice">
+                <strong>No results.</strong> Try clearing filters or searching a brand like "Polaris" or "Ski-Doo".
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+
+      $$(".card").forEach(card => {
+        card.addEventListener("click", () => {
+          openDrawer(card.dataset.unit, "overview");
+        });
+      });
+
+      $$(".card [data-action]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const unitId = btn.closest(".card").dataset.unit;
+          const action = btn.dataset.action;
+          if (action === "quote") openDrawer(unitId, "quote");
+          if (action === "deals") openDrawer(unitId, "deals");
+          if (action === "marketing") openDrawer(unitId, "marketing");
+        });
+      });
+    }
+
+    if (state.route === "deals"){
+      const f = normalize(state._promoFilter || "");
+      const promos = state.promos
+        .slice()
+        .sort((a,b)=> (promoIsActive(b) - promoIsActive(a)) || (safeNum(b.amount) - safeNum(a.amount)) || a.title.localeCompare(b.title))
+        .filter(p => {
+          if (!f) return true;
+          const hay = normalize([p.title, ...(p.brands||[]), ...(p.categories||[]), p.type].join(" "));
+          return hay.includes(f);
+        });
+
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hero">
+            <h1>Promotion-to-inventory matcher</h1>
+            <p>Click a promotion to see matched units. Apply to a quote in one click. This is the engine behind "show me every deal that applies".</p>
+          </div>
+
+          <div class="bd">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width:52%;">Promotion</th>
+                  <th>Value</th>
+                  <th>Status</th>
+                  <th>Matched units</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${promos.map(p => {
+                  const active = promoIsActive(p);
+                  const matched = state.inventory.filter(u => unitMatchesPromo(u,p).match).length;
+                  const value = p.type==="apr_offer" ? pct(p.apr) : (p.amount ? money(p.amount) : "-");
+                  return `
+                    <tr>
+                      <td>
+                        <div style="font-weight:760; letter-spacing:-0.01em;">${escapeHtml(p.title)}</div>
+                        <div class="muted" style="margin-top:4px; font-size:12px;">
+                          ${escapeHtml((p.brands||[]).join(", ") || "Any brand")} •
+                          ${escapeHtml((p.categories||[]).join(", ") || "Any category")} •
+                          ${escapeHtml((p.condition||[]).join(", ") || "Any condition")}
+                        </div>
+                        <div class="muted" style="margin-top:2px; font-size:12px;">
+                          Active dates: ${escapeHtml(p.startDate)} to ${escapeHtml(p.endDate)}
+                        </div>
+                      </td>
+                      <td><span class="pill ${p.type==="apr_offer"?"brand":"good"}"><strong>${escapeHtml(value)}</strong></span></td>
+                      <td>${active ? `<span class="pill good"><strong>Active</strong></span>` : `<span class="pill warn"><strong>Inactive</strong></span>`}</td>
+                      <td><span class="pill"><strong>${matched}</strong></span></td>
+                      <td>
+                        <div class="row tight">
+                          <button class="btn small" data-action="promo-view" data-promo="${p.id}">View</button>
+                          <button class="btn small" data-action="promo-matched" data-promo="${p.id}">Matched units</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      $$("[data-action='promo-view']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const promo = state.promos.find(p => p.id === btn.dataset.promo);
+          if (!promo) return;
+          openModal({ title: promo.title, sub: `${promo.type} • ${promo.startDate} to ${promo.endDate}`, bodyHtml: renderPromoDetails(promo) });
+        });
+      });
+
+      $$("[data-action='promo-matched']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const promo = state.promos.find(p => p.id === btn.dataset.promo);
+          if (!promo) return;
+          const matched = state.inventory
+            .filter(u => unitMatchesPromo(u,promo).match)
+            .map(u => ({...u, _promos: applicablePromosForUnit(u)}));
+
+          openModal({
+            title: "Matched units",
+            sub: promo.title,
+            bodyHtml: `
+              <div class="notice">
+                ${matched.length} units matched via rules. Click a unit to open the drawer, then apply this promotion to the quote.
+              </div>
+              <div class="divider"></div>
+              <div class="grid">
+                ${matched.map(u => {
+                  const title = `${u.year} ${u.make} ${u.model}${u.trim ? " " + u.trim : ""}`.trim();
+                  return `
+                    <div class="card" data-unit="${u.id}" style="cursor:pointer;">
+                      <div class="thumb">
+                        <img src="${escapeHtml(u.img || PLACEHOLDER_IMG)}" alt="">
+                        <div class="badges">
+                          <div class="badge ${u.condition==="New"?"good":"warn"}">${escapeHtml(u.condition)}</div>
+                          <div class="badge brand">${escapeHtml(u.make)}</div>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="title">${escapeHtml(title)}</div>
+                        <div class="money">
+                          <div class="price">${money(u.price)}</div>
+                          ${u.msrp ? `<div class="msrp">${money(u.msrp)}</div>` : ""}
+                        </div>
+                        <div class="mini">
+                          <div><span class="k">Stock</span>${escapeHtml(u.stock||"N/A")}</div>
+                          <div><span class="k">Deals</span>${u._promos.length}</div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            `
+          });
+
+          $$("#modalBody .card").forEach(card => {
+            card.addEventListener("click", () => {
+              closeModal();
+              openDrawer(card.dataset.unit, "deals");
+            });
+          });
+        });
+      });
+    }
+
+    if (state.route === "quotes"){
+      const items = getFilteredInventory().slice(0, 12);
+
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hero">
+            <h1>Quote Builder</h1>
+            <p>Select a unit to open the quote drawer. This is optimized for fast, clean, repeatable math with promo hooks.</p>
+          </div>
+
+          <div class="bd">
+            <div class="grid">
+              ${items.map(u => {
+                const promos = applicablePromosForUnit(u);
+                const title = `${u.year} ${u.make} ${u.model}${u.trim ? " " + u.trim : ""}`.trim();
+                const best = bestCashPromo(promos);
+                return `
+                  <div class="card" data-unit="${u.id}">
+                    <div class="thumb">
+                      <img src="${escapeHtml(u.img || PLACEHOLDER_IMG)}" alt="">
+                      <div class="badges">
+                        <div class="badge ${u.condition==="New"?"good":"warn"}">${escapeHtml(u.condition)}</div>
+                        <div class="badge brand">${escapeHtml(u.make)}</div>
+                        ${best ? `<div class="badge good">Offer: ${money(best.amount)}</div>` : ""}
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="title">${escapeHtml(title)}</div>
+                      <div class="meta">${escapeHtml(u.category)} • Stock ${escapeHtml(u.stock||"N/A")}</div>
+                      <div class="money">
+                        <div class="price">${money(u.price)}</div>
+                        ${u.msrp ? `<div class="msrp">${money(u.msrp)}</div>` : ""}
+                      </div>
+                      <div class="row">
+                        <button class="btn small primary" data-action="open-quote">Open quote</button>
+                        <button class="btn small" data-action="open-deals">Deals</button>
+                      </div>
+                      <div class="mini">
+                        <div><span class="k">Deals</span>${promos.length}</div>
+                        <div><span class="k">VIN</span>${escapeHtml((u.vin||"").slice(-6) || "N/A")}</div>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="notice">
+              Tip: Use the global search and filters to narrow the list first, then open a quote.
+            </div>
+          </div>
+        </div>
+      `;
+
+      $$(".card").forEach(card => {
+        card.addEventListener("click", () => openDrawer(card.dataset.unit, "quote"));
+      });
+      $$("[data-action='open-quote']").forEach(btn => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDrawer(btn.closest(".card").dataset.unit, "quote");
+      }));
+      $$("[data-action='open-deals']").forEach(btn => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDrawer(btn.closest(".card").dataset.unit, "deals");
+      }));
+    }
+
+    if (state.route === "studio"){
+      const items = getFilteredInventory().slice(0, 12);
+
+      el.innerHTML = `
+        <div class="panel">
+          <div class="hero">
+            <h1>Listing Studio</h1>
+            <p>Pick a unit to open the studio drawer and generate listing copy and ad variants.</p>
+          </div>
+          <div class="bd">
+            <div class="grid">
+              ${items.map(u => {
+                const promos = applicablePromosForUnit(u);
+                const title = `${u.year} ${u.make} ${u.model}${u.trim ? " " + u.trim : ""}`.trim();
+                return `
+                  <div class="card" data-unit="${u.id}">
+                    <div class="thumb">
+                      <img src="${escapeHtml(u.img || PLACEHOLDER_IMG)}" alt="">
+                      <div class="badges">
+                        <div class="badge brand">${escapeHtml(u.make)}</div>
+                        <div class="badge">${escapeHtml(u.category)}</div>
+                        <div class="badge good">${promos.length} deals</div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="title">${escapeHtml(title)}</div>
+                      <div class="money">
+                        <div class="price">${money(u.price)}</div>
+                        ${u.msrp ? `<div class="msrp">${money(u.msrp)}</div>` : ""}
+                      </div>
+                      <div class="row">
+                        <button class="btn small good" data-action="open-studio">Open Studio</button>
+                        <button class="btn small" data-action="open-quote">Quote</button>
+                      </div>
+                      <div class="mini">
+                        <div><span class="k">Stock</span>${escapeHtml(u.stock||"N/A")}</div>
+                        <div><span class="k">Condition</span>${escapeHtml(u.condition)}</div>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="notice">
+              Offline templates generate immediately. AI generation can be enabled in Data.
+            </div>
+          </div>
+        </div>
+      `;
+
+      $$(".card").forEach(card => {
+        card.addEventListener("click", () => openDrawer(card.dataset.unit, "marketing"));
+      });
+      $$("[data-action='open-studio']").forEach(btn => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDrawer(btn.closest(".card").dataset.unit, "marketing");
+      }));
+      $$("[data-action='open-quote']").forEach(btn => btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDrawer(btn.closest(".card").dataset.unit, "quote");
+      }));
+    }
+
+    if (state.route === "data"){
+      renderDataPage(el);
+    }
+  }
+
+  function renderUnitCard(u){
+    const title = `${u.year} ${u.make} ${u.model}${u.trim ? " " + u.trim : ""}`.trim();
+    const promos = u._promos || [];
+    const best = u._bestCash;
+
+    const dealBadge = promos.length
+      ? `<div class="badge good">${promos.length} deal${promos.length===1?"":"s"}</div>`
+      : `<div class="badge">No deals</div>`;
+
+    const bestBadge = best && best.amount
+      ? `<div class="badge good">Best: ${money(best.amount)}</div>`
+      : "";
+
+    return `
+      <div class="card" data-unit="${u.id}">
+        <div class="thumb">
+          <img src="${escapeHtml(u.img || PLACEHOLDER_IMG)}" alt="">
+          <div class="badges">
+            <div class="badge ${u.condition==="New"?"good":"warn"}">${escapeHtml(u.condition)}</div>
+            <div class="badge brand">${escapeHtml(u.make)}</div>
+            ${dealBadge}
+            ${bestBadge}
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="title">${escapeHtml(title)}</div>
+          <div class="meta">${escapeHtml(u.category)} • Stock ${escapeHtml(u.stock||"N/A")}</div>
+          <div class="money">
+            <div class="price">${money(u.price)}</div>
+            ${u.msrp ? `<div class="msrp">${money(u.msrp)}</div>` : ""}
+          </div>
+
+          <div class="row tight">
+            <button class="btn small primary" data-action="quote">Quote</button>
+            <button class="btn small" data-action="deals">Deals</button>
+            <button class="btn small good" data-action="marketing">Copy</button>
+          </div>
+
+          <div class="mini">
+            <div><span class="k">VIN</span>${escapeHtml((u.vin||"").slice(-6) || "N/A")}</div>
+            <div><span class="k">Deals</span>${promos.length}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDataPage(el){
+    const invJson = JSON.stringify(state.inventory, null, 2);
+    const promoJson = JSON.stringify(state.promos, null, 2);
+    const setJson = JSON.stringify(state.settings, null, 2);
+
+    el.innerHTML = `
+      <div class="panel">
+        <div class="hero">
+          <h1>Data & AI settings</h1>
+          <p>Import/export inventory and promotions, and configure optional AI integration. This is where you swap demo data for real dealership data.</p>
+        </div>
+        <div class="bd">
+          <div class="notice">
+            <strong>Security note:</strong> OpenAI’s docs recommend not exposing API keys in client-side code.
+            For a real deployment, use a server-side proxy and keep keys in environment variables.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button class="btn" id="downloadAll">Export all (zip-free)</button>
+            <button class="btn danger" id="resetAll">Reset demo data</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="panel" style="margin-bottom:12px;">
+            <div class="hd">
+              <div>
+                <h2>AI configuration (optional)</h2>
+                <div class="sub">If you use OpenAI directly from browser, expect CORS/security limitations. Proxy recommended.</div>
+              </div>
+              <div class="row tight">
+                <button class="btn small primary" id="saveAi">Save</button>
+              </div>
+            </div>
+            <div class="bd">
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>AI enabled</label>
+                  <select id="ai_enabled">
+                    <option value="false" ${!state.settings.ai.enabled ? "selected":""}>No</option>
+                    <option value="true" ${state.settings.ai.enabled ? "selected":""}>Yes</option>
+                  </select>
+                </div>
+
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>Provider</label>
+                  <select id="ai_provider">
+                    <option value="none" ${state.settings.ai.provider==="none"?"selected":""}>None</option>
+                    <option value="openai" ${state.settings.ai.provider==="openai"?"selected":""}>OpenAI (Responses API)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>Endpoint</label>
+                  <input id="ai_endpoint" value="${escapeHtml(state.settings.ai.endpoint)}" />
+                </div>
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>Model</label>
+                  <input id="ai_model" value="${escapeHtml(state.settings.ai.model)}" />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>API key (demo only, not recommended in browser)</label>
+                  <input id="ai_key" value="${escapeHtml(state.settings.ai.apiKey)}" placeholder="sk-..." />
+                </div>
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>Send Authorization header</label>
+                  <select id="ai_sendAuth">
+                    <option value="true" ${state.settings.ai.sendAuthHeader ? "selected":""}>Yes</option>
+                    <option value="false" ${!state.settings.ai.sendAuthHeader ? "selected":""}>No (proxy handles auth)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>OpenAI Organization ID (optional)</label>
+                  <input id="ai_org" value="${escapeHtml(state.settings.ai.orgId || "")}" />
+                </div>
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>OpenAI Project ID (optional)</label>
+                  <input id="ai_project" value="${escapeHtml(state.settings.ai.projectId || "")}" />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>Timeout (ms)</label>
+                  <input id="ai_timeout" value="${escapeHtml(String(state.settings.ai.timeoutMs||25000))}" />
+                </div>
+                <div class="field" style="flex:1; min-width: 240px;">
+                  <label>AI test prompt</label>
+                  <input id="ai_test_prompt" value="Return a short JSON object: {&quot;ok&quot;: true, &quot;today&quot;: &quot;${isoToday()}&quot; }" />
+                </div>
+              </div>
+
+              <div class="row">
+                <button class="btn" id="testAi">Test AI</button>
+                <button class="btn" id="toggleSidebar">${state.ui.showSidebar ? "Hide sidebar" : "Show sidebar"}</button>
+                <button class="btn" id="clearKey">Clear key</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-bottom:12px;">
+            <div class="hd">
+              <div>
+                <h2>Inventory JSON</h2>
+                <div class="sub">Paste your real feed here (or export from your platform). Must be an array of unit objects.</div>
+              </div>
+              <div class="row tight">
+                <button class="btn small primary" id="importInv">Import</button>
+                <button class="btn small" id="exportInv">Export</button>
+              </div>
+            </div>
+            <div class="bd">
+              <div class="field">
+                <label>Inventory (array)</label>
+                <textarea id="invJson">${escapeHtml(invJson)}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-bottom:12px;">
+            <div class="hd">
+              <div>
+                <h2>Promotions JSON</h2>
+                <div class="sub">Paste OEM promotions as structured rules, or generate rules from text with AI.</div>
+              </div>
+              <div class="row tight">
+                <button class="btn small primary" id="importPromos">Import</button>
+                <button class="btn small" id="exportPromos2">Export</button>
+              </div>
+            </div>
+            <div class="bd">
+              <div class="field">
+                <label>Promotions (array)</label>
+                <textarea id="promoJson">${escapeHtml(promoJson)}</textarea>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="panel">
+                <div class="hd">
+                  <div>
+                    <h2>Promo extractor (optional AI)</h2>
+                    <div class="sub">Paste a promo paragraph. AI returns structured rules you can add to your list.</div>
+                  </div>
+                  <div class="row tight">
+                    <button class="btn small primary" id="extractPromoAi" ${ (state.settings.ai.enabled && state.settings.ai.provider==="openai") ? "" : "disabled" }>Extract with AI</button>
+                    <button class="btn small" id="appendPromo">Append result</button>
+                  </div>
+                </div>
+                <div class="bd">
+                  <div class="field">
+                    <label>Raw promo text</label>
+                    <textarea id="promoRaw" placeholder="Paste an OEM promo here, including dates and eligibility."></textarea>
+                  </div>
+                  <div class="field">
+                    <label>Extracted promo JSON (single object)</label>
+                    <textarea id="promoExtracted" placeholder="AI result appears here."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="hd">
+              <div>
+                <h2>Settings JSON</h2>
+                <div class="sub">Tax rate defaults, fee defaults, APR defaults, and term options.</div>
+              </div>
+              <div class="row tight">
+                <button class="btn small primary" id="importSettings">Import</button>
+                <button class="btn small" id="exportSettings">Export</button>
+              </div>
+            </div>
+            <div class="bd">
+              <div class="field">
+                <label>Settings</label>
+                <textarea id="settingsJson">${escapeHtml(setJson)}</textarea>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    `;
+
+    // Buttons
+    $("#downloadAll").addEventListener("click", () => {
+      downloadJson("inventory.json", state.inventory);
+      downloadJson("promotions.json", state.promos);
+      downloadJson("settings.json", state.settings);
+      toast("Exported files.", "Downloaded inventory/promotions/settings.");
+    });
+
+    $("#resetAll").addEventListener("click", () => {
+      if (!confirm("Reset inventory, promos, and settings to demo data?")) return;
+      state.inventory = structuredClone(DEMO.inventory);
+      state.promos = structuredClone(DEMO.promos);
+      state.settings = structuredClone(DEMO.settings);
+      state.quoteDrafts = {};
+      persist();
+      toast("Reset complete.", "Demo data restored.");
+      render();
+    });
+
+    $("#toggleSidebar").addEventListener("click", () => {
+      state.ui.showSidebar = !state.ui.showSidebar;
+      persist();
+      render();
+    });
+
+    $("#clearKey").addEventListener("click", () => {
+      state.settings.ai.apiKey = "";
+      persist();
+      toast("Cleared API key.", "Remember: keep keys off the client in production.");
+      render();
+    });
+
+    $("#saveAi").addEventListener("click", () => {
+      state.settings.ai.enabled = $("#ai_enabled").value === "true";
+      state.settings.ai.provider = $("#ai_provider").value;
+      state.settings.ai.endpoint = $("#ai_endpoint").value.trim();
+      state.settings.ai.model = $("#ai_model").value.trim();
+      state.settings.ai.apiKey = $("#ai_key").value.trim();
+      state.settings.ai.sendAuthHeader = $("#ai_sendAuth").value === "true";
+      state.settings.ai.orgId = $("#ai_org").value.trim();
+      state.settings.ai.projectId = $("#ai_project").value.trim();
+      state.settings.ai.timeoutMs = safeNum($("#ai_timeout").value, 25000);
+      persist();
+      toast("AI settings saved.", state.settings.ai.enabled ? "AI enabled." : "AI disabled.");
+      syncAiBtn();
+    });
+
+    $("#testAi").addEventListener("click", async () => {
+      try{
+        toast("Testing AI...", "If this fails in-browser, use a proxy.");
+        const prompt = $("#ai_test_prompt").value;
+        const schema = {
+          name: "test",
+          schema: {
+            type:"object",
+            additionalProperties: true,
+            properties: {
+              ok: {type:"boolean"},
+              today: {type:"string"}
+            },
+            required: ["ok","today"]
+          }
+        };
+
+        const result = await aiRequest({
+          inputMessages: [
+            { role:"system", content:"Return only valid JSON matching schema. Include ok=true and today's date string." },
+            { role:"user", content: prompt }
+          ],
+          schema,
+          temperature: 0.2,
+          maxOutputTokens: 80
+        });
+
+        openModal({
+          title: "AI test result",
+          sub: "Structured JSON received.",
+          bodyHtml: `<pre class="notice" style="white-space:pre-wrap; font-family: var(--mono);">${escapeHtml(JSON.stringify(result, null, 2))}</pre>`
+        });
+      } catch(e){
+        toast("AI test failed.", String(e.message || e), "bad");
+      }
+    });
+
+    $("#importInv").addEventListener("click", () => {
+      try{
+        const data = JSON.parse($("#invJson").value);
+        if (!Array.isArray(data)) throw new Error("Inventory JSON must be an array.");
+        // Basic cleanup
+        state.inventory = data.map(u => ({
+          id: u.id || uid(),
+          year: safeNum(u.year, 0),
+          make: u.make || "",
+          model: u.model || "",
+          trim: u.trim || "",
+          category: u.category || "",
+          condition: u.condition || "",
+          price: safeNum(u.price, 0),
+          msrp: safeNum(u.msrp, 0),
+          stock: u.stock || "",
+          vin: u.vin || "",
+          url: u.url || "",
+          img: u.img || PLACEHOLDER_IMG,
+          specs: u.specs || {},
+          description: u.description || ""
+        }));
+        persist();
+        toast("Inventory imported.", `${state.inventory.length} units loaded.`);
+        render();
+      } catch(e){
+        toast("Import failed.", String(e.message || e), "bad");
+      }
+    });
+
+    $("#exportInv").addEventListener("click", () => downloadJson("inventory.json", state.inventory));
+
+    $("#importPromos").addEventListener("click", () => {
+      try{
+        const data = JSON.parse($("#promoJson").value);
+        if (!Array.isArray(data)) throw new Error("Promotions JSON must be an array.");
+        state.promos = data.map(p => ({
+          id: p.id || uid(),
+          title: p.title || "Untitled promo",
+          brands: Array.isArray(p.brands) ? p.brands : [],
+          categories: Array.isArray(p.categories) ? p.categories : [],
+          condition: Array.isArray(p.condition) ? p.condition : [],
+          modelContains: Array.isArray(p.modelContains) ? p.modelContains : [],
+          yearMin: Number.isFinite(p.yearMin) ? p.yearMin : safeNum(p.yearMin, 0),
+          yearMax: Number.isFinite(p.yearMax) ? p.yearMax : safeNum(p.yearMax, 9999),
+          startDate: p.startDate || "1970-01-01",
+          endDate: p.endDate || "2100-01-01",
+          type: p.type || "cash_rebate",
+          amount: (p.amount === null || p.amount === undefined) ? null : safeNum(p.amount, 0),
+          apr: (p.apr === null || p.apr === undefined) ? null : safeNum(p.apr, 0),
+          termMonths: (p.termMonths === null || p.termMonths === undefined) ? null : (Array.isArray(p.termMonths) ? p.termMonths.map(x=>safeNum(x,0)).filter(x=>x>0) : null),
+          stackable: !!p.stackable,
+          notes: p.notes || "",
+          sourceUrl: p.sourceUrl || ""
+        }));
+        persist();
+        toast("Promotions imported.", `${state.promos.length} promos loaded.`);
+        render();
+      } catch(e){
+        toast("Import failed.", String(e.message || e), "bad");
+      }
+    });
+
+    $("#exportPromos2").addEventListener("click", () => downloadJson("promotions.json", state.promos));
+
+    $("#importSettings").addEventListener("click", () => {
+      try{
+        const data = JSON.parse($("#settingsJson").value);
+        if (!data || typeof data !== "object") throw new Error("Settings JSON must be an object.");
+        state.settings = deepMerge(structuredClone(DEMO.settings), data);
+        persist();
+        toast("Settings imported.", "Defaults updated.");
+        syncAiBtn();
+        render();
+      } catch(e){
+        toast("Import failed.", String(e.message || e), "bad");
+      }
+    });
+
+    $("#exportSettings").addEventListener("click", () => downloadJson("settings.json", state.settings));
+
+    $("#extractPromoAi").addEventListener("click", async () => {
+      try{
+        const raw = $("#promoRaw").value.trim();
+        if (!raw) { toast("Paste promo text first.", ""); return; }
+
+        toast("Extracting promo rules with AI...", "Structured output mode.");
+
+        const prompt = [
+          `Extract a dealership promotion into a structured rules object.`,
+          `Return JSON matching the schema exactly.`,
+          `Guidelines:`,
+          `- Use ISO dates (YYYY-MM-DD) for startDate and endDate.`,
+          `- type must be one of: cash_rebate, apr_offer, accessory_credit.`,
+          `- If unknown, set amount/apr to null and still fill the other fields.`,
+          `- condition should be ["New"] unless text clearly allows Used.`,
+          `- modelContains should be keywords that help matching (e.g. "Ranger", "Summit").`,
+          ``,
+          `PROMO TEXT:`,
+          raw
+        ].join("\n");
+
+        const result = await aiRequest({
+          inputMessages: [
+            { role:"system", content:"You extract promotions. Return only JSON." },
+            { role:"user", content: prompt }
+          ],
+          schema: promoExtractionSchema(),
+          temperature: 0.25,
+          maxOutputTokens: 500
+        });
+
+        $("#promoExtracted").value = JSON.stringify({
+          id: uid(),
+          ...result
+        }, null, 2);
+
+        toast("Promo extracted.", "Review JSON, then click Append result.");
+      } catch(e){
+        toast("Extraction failed.", String(e.message || e), "bad");
+      }
+    });
+
+    $("#appendPromo").addEventListener("click", () => {
+      try{
+        const obj = JSON.parse($("#promoExtracted").value);
+        if (!obj || typeof obj !== "object") throw new Error("Extracted promo must be a JSON object.");
+        if (!obj.id) obj.id = uid();
+        state.promos.unshift(obj);
+        persist();
+        $("#promoJson").value = JSON.stringify(state.promos, null, 2);
+        toast("Promo appended.", "Promotion added to list.");
+        render();
+      } catch(e){
+        toast("Append failed.", String(e.message || e), "bad");
+      }
+    });
+  }
+
+  /* =========================================================
+     Promo composer (manual)
+     ========================================================= */
+  function openPromoComposer(){
+    const draft = {
+      id: uid(),
+      title: "New promotion",
+      brands: [],
+      categories: [],
+      condition: ["New"],
+      modelContains: [],
+      yearMin: new Date().getFullYear(),
+      yearMax: new Date().getFullYear(),
+      startDate: isoToday(),
+      endDate: isoToday(),
+      type: "cash_rebate",
+      amount: 0,
+      apr: null,
+      termMonths: null,
+      stackable: true,
+      notes: "",
+      sourceUrl: ""
+    };
+
+    openModal({
+      title: "Add promotion",
+      sub: "Create a structured rule that the matcher can apply to inventory.",
+      bodyHtml: `
+        <div class="field"><label>Title</label><input id="pc_title" value="${escapeHtml(draft.title)}"/></div>
+        <div class="row">
+          <div class="field" style="flex:1; min-width: 200px;"><label>Brands (comma)</label><input id="pc_brands" placeholder="Polaris, Ski-Doo" /></div>
+          <div class="field" style="flex:1; min-width: 200px;"><label>Categories (comma)</label><input id="pc_cats" placeholder="UTV, Snowmobile" /></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1; min-width: 200px;"><label>Condition (comma)</label><input id="pc_cond" value="New" /></div>
+          <div class="field" style="flex:1; min-width: 200px;"><label>Model contains (comma)</label><input id="pc_model" placeholder="Ranger, Summit" /></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1; min-width: 160px;"><label>Year min</label><input id="pc_ymin" value="${draft.yearMin}"/></div>
+          <div class="field" style="flex:1; min-width: 160px;"><label>Year max</label><input id="pc_ymax" value="${draft.yearMax}"/></div>
+          <div class="field" style="flex:1; min-width: 200px;"><label>Type</label>
+            <select id="pc_type">
+              <option value="cash_rebate">Cash rebate</option>
+              <option value="apr_offer">APR offer</option>
+              <option value="accessory_credit">Accessory credit</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1; min-width: 200px;"><label>Start date</label><input id="pc_start" value="${draft.startDate}"/></div>
+          <div class="field" style="flex:1; min-width: 200px;"><label>End date</label><input id="pc_end" value="${draft.endDate}"/></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1; min-width: 200px;"><label>Amount (for cash/credit)</label><input id="pc_amount" value="0"/></div>
+          <div class="field" style="flex:1; min-width: 200px;"><label>APR (for APR offer)</label><input id="pc_apr" value="0"/></div>
+          <div class="field" style="flex:1; min-width: 200px;"><label>Term months (comma, for APR)</label><input id="pc_terms" placeholder="36,48,60" /></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1; min-width: 200px;"><label>Stackable</label>
+            <select id="pc_stack"><option value="true">Yes</option><option value="false">No</option></select>
+          </div>
+          <div class="field" style="flex:3; min-width: 360px;"><label>Source URL</label><input id="pc_src" placeholder="https://..." /></div>
+        </div>
+        <div class="field"><label>Notes</label><textarea id="pc_notes" placeholder="Restrictions, disclaimers, internal notes..."></textarea></div>
+
+        <div class="row">
+          <button class="btn primary" id="pc_save">Save promo</button>
+          <button class="btn" id="pc_preview">Preview matches</button>
+        </div>
+      `
+    });
+
+    $("#pc_save").addEventListener("click", () => {
+      try{
+        const p = buildPromoFromComposer();
+        state.promos.unshift(p);
+        persist();
+        toast("Promotion saved.", p.title);
+        closeModal();
+        render();
+      } catch(e){
+        toast("Save failed.", String(e.message||e), "bad");
+      }
+    });
+
+    $("#pc_preview").addEventListener("click", () => {
+      try{
+        const p = buildPromoFromComposer();
+        const matched = state.inventory.filter(u => unitMatchesPromo(u,p).match);
+        openModal({
+          title: "Promo preview",
+          sub: `${matched.length} units would match`,
+          bodyHtml: `
+            <div class="notice"><strong>${escapeHtml(p.title)}</strong><br/>Matched units: ${matched.length}</div>
+            <div class="divider"></div>
+            <div class="grid">
+              ${matched.map(u => renderUnitCard({...u, _promos: applicablePromosForUnit(u), _bestCash: bestCashPromo(applicablePromosForUnit(u)) })).join("")}
+            </div>
+          `
+        });
+        $$("#modalBody .card").forEach(card => {
+          card.addEventListener("click", () => {
+            closeModal();
+            openDrawer(card.dataset.unit, "deals");
+          });
+        });
+      } catch(e){
+        toast("Preview failed.", String(e.message||e), "bad");
+      }
+    });
+
+    function buildPromoFromComposer(){
+      const title = $("#pc_title").value.trim();
+      if (!title) throw new Error("Title is required.");
+
+      const type = $("#pc_type").value;
+      const amount = safeNum($("#pc_amount").value, 0);
+      const apr = safeNum($("#pc_apr").value, 0);
+      const terms = $("#pc_terms").value.trim();
+      const termMonths = terms ? terms.split(",").map(x=>safeNum(x,0)).filter(x=>x>0) : null;
+
+      const p = {
+        id: uid(),
+        title,
+        brands: splitCSV($("#pc_brands").value),
+        categories: splitCSV($("#pc_cats").value),
+        condition: splitCSV($("#pc_cond").value),
+        modelContains: splitCSV($("#pc_model").value),
+        yearMin: safeNum($("#pc_ymin").value, 0),
+        yearMax: safeNum($("#pc_ymax").value, 9999),
+        startDate: $("#pc_start").value.trim() || isoToday(),
+        endDate: $("#pc_end").value.trim() || isoToday(),
+        type,
+        amount: (type==="cash_rebate" || type==="accessory_credit") ? amount : null,
+        apr: (type==="apr_offer") ? apr : null,
+        termMonths: (type==="apr_offer") ? termMonths : null,
+        stackable: $("#pc_stack").value === "true",
+        notes: $("#pc_notes").value.trim(),
+        sourceUrl: $("#pc_src").value.trim()
+      };
+
+      return p;
+    }
+
+    function splitCSV(s){
+      return String(s||"")
+        .split(",")
+        .map(x=>x.trim())
+        .filter(Boolean);
+    }
+  }
+
+  /* =========================================================
+     Downloads
+     ========================================================= */
+  function downloadJson(filename, obj){
+    const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  /* =========================================================
+     Render + routing
+     ========================================================= */
+  let renderTimer = null;
+  function renderDebounced(){
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(render, 140);
+  }
+
+  function render(){
+    persist();
+    setActiveNav();
+    renderSidebar();
+    renderMain();
+    if (state.drawer.open) renderDrawer();
+  }
+
+  function setActiveNav(){
+    $$("#nav a").forEach(a => {
+      a.classList.toggle("active", a.dataset.route === state.route);
+    });
+  }
+
+  function syncAiBtn(){
+    const enabled = state.settings.ai.enabled && state.settings.ai.provider === "openai";
+    $("#aiBtn").textContent = enabled ? "AI: On" : "AI: Off";
+  }
+
+  function setRoute(route){
+    state.route = route;
+    location.hash = route;
+  }
+
+  window.addEventListener("hashchange", () => {
+    const hash = location.hash.replace("#","").trim() || "inventory";
+    state.route = hash;
+    render();
+  });
+
+  /* =========================================================
+     Global hooks
+     ========================================================= */
+  function init(){
+    loadPersisted();
+    syncAiBtn();
+
+    $("#brandHome").addEventListener("click", () => setRoute("inventory"));
+
+    $("#q").value = state.q;
+    $("#q").addEventListener("input", e => {
+      state.q = e.target.value;
+      renderDebounced();
+    });
+
+    $("#themeBtn").addEventListener("click", () => {
+      state.theme = state.theme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", state.theme);
+      persist();
+      render();
+    });
+
+    $("#aiBtn").addEventListener("click", () => {
+      // quick toggle (won't set provider; that's in Data)
+      state.settings.ai.enabled = !state.settings.ai.enabled;
+      persist();
+      syncAiBtn();
+      toast("AI toggled.", state.settings.ai.enabled ? "Enabled. Configure provider in Data." : "Disabled.");
+      render();
+    });
+
+    $("#drawerClose").addEventListener("click", closeDrawer);
+    $("#drawerCopyLink").addEventListener("click", async () => {
+      const unit = state.inventory.find(u => u.id === state.drawer.unitId);
+      const link = unit?.url || (location.href.split("#")[0] + "#inventory");
+      await copyText(link);
+      toast("Copied link.", link);
+    });
+
+    $("#modalClose").addEventListener("click", closeModal);
+    $("#modalBackdrop").addEventListener("click", (e) => {
+      if (e.target === $("#modalBackdrop")) closeModal();
+    });
+
+    // Escape to close modal/drawer
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape"){
+        if ($("#modalBackdrop").classList.contains("open")) closeModal();
+        if ($("#drawer").classList.contains("open")) closeDrawer();
+      }
+    });
+
+    // initial render
+    render();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
