@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICOM Acronyms & Terminology</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PapaParse for CSV Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+   
+    <style>
+        /* ICOM Brand Colors based on Style Guide */
+        :root {
+            --icom-orange: #F99D27; /* PMS 137 C */
+            --icom-orange-light: #F8BB8B; /* PMS 474 C */
+            --icom-gray-dark: #777878; /* PMS Cool Gray 9 C */
+            --icom-gray-med: #AAAAAB; /* PMS Cool Gray 6 C */
+            --icom-gray-light: #EDEDED; /* PMS 420 C */
+            --icom-yellow: #F6C857; /* PMS 134 C */
+        }
+       
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+        }
+
+
+        .icom-gradient {
+            background: linear-gradient(135deg, var(--icom-orange) 0%, #F05023 100%);
+        }
+
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-left-color: var(--icom-orange);
+        }
+
+
+        .category-chip {
+            transition: all 0.2s ease;
+        }
+       
+        .category-chip.active {
+            background-color: var(--icom-gray-dark);
+            color: white;
+            border-color: var(--icom-gray-dark);
+        }
+
+
+        .btn-primary {
+            background-color: var(--icom-orange);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #e08e22;
+        }
+
+
+        /* Loading Spinner Animation */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--icom-orange);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--icom-gray-med);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--icom-gray-dark);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+
+        // --- Components ---
+
+
+        const Header = ({ feedbackLink }) => {
+            return (
+                <div className="bg-white shadow-md sticky top-0 z-50">
+                    <div className="icom-gradient h-2 w-full"></div>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            
+                            {/* Logo Area */}
+                            <div className="flex items-center gap-3">
+                                <div className="bg-orange-500 text-white p-2 rounded-lg shadow-sm">
+                                    <i data-lucide="book-open" className="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    {/* TITLE UPDATE START */}
+                                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight leading-none">
+                                        <span style={{ color: 'var(--icom-orange)' }}>ICOM</span>mon Language 
+                                    </h1>
+                                    <p className="text-xs text-gray-500 font-medium tracking-wide uppercase mt-1">
+                                        Glossary of Shared Acronyms & Terms
+                                    </p>
+                                    {/* TITLE UPDATE END */}
+                                </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <a
+                                href={feedbackLink}
+                                target="_blank"
+                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold transition-colors border border-gray-200"
+                            >
+                                <i data-lucide="mail-plus" className="w-4 h-4"></i>
+                                <span>Request Update</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SearchBar = ({ searchTerm, setSearchTerm, isLoading }) => (
+            <div className="relative max-w-2xl mx-auto mt-8 px-4">
+                <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
+                    <i data-lucide="search" className={`h-5 w-5 ${isLoading ? 'text-gray-300' : 'text-gray-400'}`}></i>
+                </div>
+                <input
+                    type="text"
+                    disabled={isLoading}
+                    className="block w-full pl-14 pr-4 py-4 rounded-xl border-2 border-gray-100 shadow-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all text-lg disabled:bg-gray-50 disabled:text-gray-400"
+                    placeholder={isLoading ? "Loading terms..." : "Search for an acronym, term, or definition..."}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        );
+
+
+        const CategoryFilter = ({ categories, selectedCategory, setSelectedCategory }) => (
+            <div className="max-w-7xl mx-auto px-4 mt-6">
+                <div className="flex flex-wrap justify-center gap-2">
+                    <button
+                        onClick={() => setSelectedCategory('All')}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 category-chip ${selectedCategory === 'All' ? 'active shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        All Terms
+                    </button>
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 category-chip ${selectedCategory === cat ? 'active shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+
+
+        const TermCard = ({ item }) => {
+            return (
+                <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-transparent card-hover flex flex-col h-full border border-gray-100">
+                    <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-0.5">{item.term}</h3>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-50 text-gray-500 border border-gray-100 ml-2 whitespace-nowrap">
+                                    {item.category}
+                                </span>
+                            </div>
+                           
+                            {item.expansion && (
+                                <div className="text-sm font-semibold text-orange-500 mt-0.5 leading-snug">
+                                    {item.expansion}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                   
+                    <div className="flex-grow mt-1">
+                        <p className="text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-2">
+                            {item.definition}
+                        </p>
+                    </div>
+
+
+                    {item.link && (
+                        <div className="mt-3 pt-2 flex justify-end">
+                            <a
+                                href={item.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-orange-500 hover:text-orange-600 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group transition-colors"
+                                title="View official source"
+                            >
+                                Learn More
+                                <i data-lucide="arrow-right" className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                            </a>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+
+        const LoadingState = () => (
+            <div className="flex flex-col items-center justify-center py-20">
+                <div className="spinner mb-4"></div>
+                <h3 className="text-lg font-medium text-gray-900">Fetching Definitions</h3>
+                <p className="mt-1 text-gray-500 text-sm">Connecting to ICOM Google Sheets...</p>
+            </div>
+        );
+
+
+        const ErrorState = ({ retry }) => (
+            <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+                    <i data-lucide="alert-circle" className="w-8 h-8 text-red-500"></i>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">Unable to load data</h3>
+                <p className="mt-1 text-gray-500 max-w-sm mx-auto mb-6">
+                    We couldn't retrieve the terms from Google Sheets. Please check your internet connection or the sheet permissions.
+                </p>
+                <button
+                    onClick={retry}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                    Try Again
+                </button>
+            </div>
+        );
+
+
+        const EmptyState = ({ onReset }) => (
+            <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <i data-lucide="search-x" className="w-8 h-8 text-gray-400"></i>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">No terms found</h3>
+                <p className="mt-1 text-gray-500 max-w-sm mx-auto">
+                    We couldn't find any terms matching your search. Try checking for typos or browsing by category.
+                </p>
+                <button
+                    onClick={onReset}
+                    className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white btn-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                >
+                    Clear Search
+                </button>
+            </div>
+        );
+
+
+        const App = () => {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [selectedCategory, setSelectedCategory] = useState("All");
+            const [data, setData] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+            const [hasError, setHasError] = useState(false);
+
+
+            // Exact mailto link from requirements
+            const feedbackLink = "https://mail.google.com/mail/?view=cm&to=help@icom.edu&su=ICOM%20Acronyms%20and%20Terminology%20-%20Suggestion&body=Hi%20IT%2C%0A%0AI%20have%20feedback%20for%20the%20ICOM%20Acronyms%20and%20Terminology%20app%3A%0A%0AType%20of%20feedback%3A%20%5BEdit%20existing%20term%20%2F%20Suggest%20new%20term%5D%0ATerm%3A%20%5BEnter%20term%2Facronym%5D%0AMy%20suggestion%3A%20%5BDescribe%20your%20edit%20or%20provide%20the%20new%20definition%20here%5D%0ASource%20(if%20applicable)%3A%20%5BWhere%20should%20users%20go%20to%20learn%20more%3F%5D%0AAdditional%20context%3A%20%5BAny%20other%20details%20that%20might%20be%20helpful%5D%0A%0AThanks%2C%0A%5BYour%20Name%5D";
+           
+            // Your Google Sheet CSV Publish URL
+            // Note: Changed from /pubhtml to /pub?output=csv for machine reading
+            const googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-Iq8XXJlQtwpFmGVksv43CkdqN4_-Mh5jXzV_ywIoeMzgBp9aq3JBcbtitI6BExnllYOslGYmIztl/pub?output=csv";
+
+
+            const fetchData = () => {
+                setIsLoading(true);
+                setHasError(false);
+               
+                Papa.parse(googleSheetUrl, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        // Map the spreadsheet columns to our app's internal names
+                        const sheetData = results.data
+                            .filter(row => row.Term) // Remove empty rows
+                            .map(row => ({
+                                term: row.Term,
+                                category: row.Category,
+                                expansion: row.Expansion,
+                                definition: row.Definition,
+                                link: row.Link
+                            }));
+                        setData(sheetData);
+                        setIsLoading(false);
+                    },
+                    error: (err) => {
+                        console.error("Error fetching CSV:", err);
+                        setHasError(true);
+                        setIsLoading(false);
+                    }
+                });
+            };
+
+
+            // Fetch on mount
+            useEffect(() => {
+                fetchData();
+            }, []);
+
+
+            // Extract unique categories and sort them
+            const categories = useMemo(() => {
+                const cats = new Set(data.map(item => item.category));
+                return Array.from(cats).sort().filter(c => c); // filter out empty/undefined categories
+            }, [data]);
+
+
+            // Filter logic
+            const filteredData = useMemo(() => {
+                return data.filter(item => {
+                    const matchesSearch =
+                        (item.term && item.term.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (item.expansion && item.expansion.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (item.definition && item.definition.toLowerCase().includes(searchTerm.toLowerCase()));
+                    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+                   
+                    return matchesSearch && matchesCategory;
+                }).sort((a, b) => a.term.localeCompare(b.term));
+            }, [data, searchTerm, selectedCategory]);
+
+
+            // Refresh icons when DOM updates
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [filteredData, isLoading, hasError]);
+
+
+            return (
+                <div className="min-h-screen pb-12">
+                    <Header feedbackLink={feedbackLink} />
+                   
+                    <main>
+                        <div className="icom-gradient absolute top-0 left-0 w-full h-64 -z-10 opacity-5"></div>
+                       
+                        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} isLoading={isLoading} />
+                       
+                        {!isLoading && !hasError && (
+                            <CategoryFilter
+                                categories={categories}
+                                selectedCategory={selectedCategory}
+                                setSelectedCategory={setSelectedCategory}
+                            />
+                        )}
+
+
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+                            {isLoading ? (
+                                <LoadingState />
+                            ) : hasError ? (
+                                <ErrorState retry={fetchData} />
+                            ) : filteredData.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredData.map((item, index) => (
+                                        <TermCard key={index} item={item} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyState onReset={() => {
+                                    setSearchTerm("");
+                                    setSelectedCategory("All");
+                                }} />
+                            )}
+                        </div>
+                    </main>
+
+
+                    <footer className="max-w-7xl mx-auto px-4 mt-20 text-center text-gray-400 text-sm pb-8">
+                        <p>&copy; {new Date().getFullYear()} Idaho College of Osteopathic Medicine. All rights reserved.</p>
+                    </footer>
+                </div>
+            );
+        };
+
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
